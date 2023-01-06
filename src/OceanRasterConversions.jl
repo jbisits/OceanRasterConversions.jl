@@ -1,5 +1,9 @@
 module OceanRasterConversions
 
-# Write your package code here.
+using Rasters, GibbsSeaWater
 
-end
+export convert_ocean_vars
+
+include("oceanconversions.jl")
+
+end #module
