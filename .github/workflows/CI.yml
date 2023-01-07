@@ -35,5 +35,6 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with: 
+        with:
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }} ## Remove when repo is public
