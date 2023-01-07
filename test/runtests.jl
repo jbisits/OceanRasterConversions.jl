@@ -18,7 +18,7 @@ using OceanRasterConversions, Test, Rasters, GibbsSeaWater
     ## `RasterSeries`s tests
     # In situ density
     for t ∈ eachindex(rs_series)
-        for (i, var) ∈ enumerate(test_vars_in_site)
+        for (i, var) ∈ enumerate(test_vars_in_situ)
             @test isequal(rs_series_res_in_situ[Ti(t)][var], vars_in_situ[i][:, :, :, t])
         end
     end
