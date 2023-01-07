@@ -1,6 +1,3 @@
-env:
-  CODECOV_TOKEN: 404abda5-9b10-438f-9c89-3cc4c002ab4c #Remove when repo is public
-
 name: CI
 on:
   push:
