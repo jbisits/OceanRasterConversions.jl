@@ -19,22 +19,33 @@ rs_series_res_pd = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ); ref_pre
 
 test_vars = keys(rs_stack_res_in_situ)
 
-## Transform p, Sₚ and θ then find ρ (in-situ and potential) to test against
+## Transform p, Sₚ and θ then find ρ (in-situ and potential) to test functions against
 p = similar(Array(Sₚ))
 Sₐ = similar(Array(Sₚ))
 Θ = similar(Array(Sₚ))
 ρ = similar(Array(Sₚ))
-ρ_ref = similar(Array(Sₚ))
+σₚ = similar(Array(Sₚ))
 for t ∈ time
     for (i, lon) ∈ enumerate(lons), (j, lat) ∈ enumerate(lats)
+
         p[i, j, :, t] .= gsw_p_from_z.(z, lat)
+
         find_nm = findall(.!ismissing.(Sₚ[i, j, :, t]) .&& .!ismissing.(θ[i, j, :, t]))
-        Sₐ[i, j, find_nm, t] .= gsw_sa_from_sp.(Sₚ[i, j, find_nm, t], p[i, j, find_nm, t], lon, lat)
+
+        Sₐ[i, j, find_nm, t] .= gsw_sa_from_sp.(Sₚ[i, j, find_nm, t],
+                                                p[i, j, find_nm, t], lon, lat)
+
         Θ[i, j, find_nm, t] .= gsw_ct_from_pt.(Sₐ[i, j, find_nm, t], θ[i, j, find_nm, t])
-        ρ[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t], Θ[i, j, find_nm, t], p[i, j, find_nm, t])
-        ρ_ref[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t], Θ[i, j, find_nm, t], ref_pressure)
+
+        ρ[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t],
+                                        Θ[i, j, find_nm, t],
+                                        p[i, j, find_nm, t])
+
+        σₚ[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t],
+                                         Θ[i, j, find_nm, t],
+                                         ref_pressure)
     end
 end
 
 vars_in_situ = (p, Sₐ, Θ, ρ)
-vars_pd = (p, Sₐ, Θ, ρ_ref)
+vars_pd = (p, Sₐ, Θ, σₚ)
