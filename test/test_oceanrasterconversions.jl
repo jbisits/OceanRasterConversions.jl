@@ -17,7 +17,8 @@ rs_stack_res_pd = convert_ocean_vars(rs_stack, (sp = :Sₚ, pt = :θ); ref_press
 rs_series_res_in_situ = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ))
 rs_series_res_pd = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ); ref_pressure)
 
-test_vars = keys(rs_stack_res_in_situ)
+test_vars_in_situ = keys(rs_stack_res_in_situ)
+test_vars_pd = keys(rs_stack_res_pd)
 
 ## Transform p, Sₚ and θ then find ρ (in-situ and potential) to test functions against
 p = similar(Array(Sₚ))
