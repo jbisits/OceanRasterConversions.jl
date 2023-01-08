@@ -12,6 +12,11 @@ rs_stack = RasterStack(test_vars, (X(lons), Y(lats), Z(z), Ti(time)))
 rs_series = RasterSeries([rs_stack[Ti(t)] for t ∈ time], Ti)
 
 ## Output to test
+converted_p = depth_to_pressure(rs_stack)
+converted_Sₚ = Sₚ_to_Sₐ(rs_stack, :Sₚ)
+converted_Sₚ_series = Rasters.combine(Sₚ_to_Sₐ(rs_series, :Sₚ), Ti)
+converted_θ = θ_to_Θ(rs_stack, :θ, :Sₚ)
+converted_θ_series = Rasters.combine(θ_to_Θ(rs_series, :θ, :Sₚ), Ti)
 rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (sp = :Sₚ, pt = :θ))
 rs_stack_res_pd = convert_ocean_vars(rs_stack, (sp = :Sₚ, pt = :θ); ref_pressure)
 rs_series_res_in_situ = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ))
@@ -26,6 +31,9 @@ Sₐ = similar(Array(Sₚ))
 Θ = similar(Array(Sₚ))
 ρ = similar(Array(Sₚ))
 σₚ = similar(Array(Sₚ))
+## Compare the standalone functions
+Sₐ_ = similar(Array(Sₚ))
+Θ_ = similar(Array(Sₚ))
 for t ∈ time
     for (i, lon) ∈ enumerate(lons), (j, lat) ∈ enumerate(lats)
 
@@ -45,6 +53,9 @@ for t ∈ time
         σₚ[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t],
                                          Θ[i, j, find_nm, t],
                                          ref_pressure)
+        find_nm_salt = findall(.!ismissing.(Sₚ[i, j, :, t]))
+        Sₐ_[i, j, find_nm_salt, t] .= gsw_sa_from_sp.(Sₚ[i, j, find_nm_salt, t],
+                                                      p[i, j, find_nm_salt, t], lon, lat)
     end
 end
 

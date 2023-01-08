@@ -4,6 +4,16 @@ using OceanRasterConversions, Test, Rasters, GibbsSeaWater
 
     include("test_oceanrasterconversions.jl")
 
+    ## `depth_to_pressure`
+    @test isequal(converted_p, p)
+    ## `Sₚ_to_Sₐ`
+    @test isequal(converted_Sₚ, Sₐ_)
+    @test isequal(converted_Sₚ_series, Sₐ_)
+    ## `θ_to_Θ`
+    @test isequal(converted_θ, Θ)
+    @test isequal(converted_θ_series, Θ)
+
+    ## `convert_ocean_vars`
     ## `RasterStack`s tests
     # In situ density
     for (i, var) ∈ enumerate(test_vars_in_situ)

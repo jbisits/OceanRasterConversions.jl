@@ -30,8 +30,7 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
 
     Sₚ = stack[var_names.sp]
     θ = stack[var_names.pt]
-    rs_dims = length(dims(Sₚ))==4 ? (dims(Sₚ, X), dims(Sₚ, Y), dims(Sₚ, Z), dims(Sₚ, Ti)) :
-                                    (dims(Sₚ, X), dims(Sₚ, Y), dims(Sₚ, Z), nothing)
+    rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
     find_nm = @. !ismissing(stack[:Sₚ]) && !ismissing(stack[:θ])
     Sₐ = Sₚ_to_Sₐ(Sₚ, p, rs_dims, find_nm)
@@ -44,19 +43,12 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
     return RasterStack(converted_vars, rs_dims)
 
 end
-function convert_ocean_vars(series::RasterSeries, var_names::NamedTuple; ref_pressure = nothing)
-
-    rs_array = Array{RasterStack}(undef, length(series))
-    for i ∈ eachindex(series)
-        rs_array[i] = convert_ocean_vars(series[i], var_names; ref_pressure)
-    end
-
-    return RasterSeries(rs_array, dims(series, Ti))
-
-end
+convert_ocean_vars(series::RasterSeries, var_names::NamedTuple;
+                  ref_pressure = nothing) = convert_ocean_vars.(series, Ref(var_names);
+                                                                ref_pressure)
 
 """
-    function depth_to_pressure(raster::Raster)
+    function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 Convert the depth dimension (`Z`) to pressure using `gsw_p_from_z`  from GibbsSeaWater.jl.
 Note that pressure depends on depth and _latitude_ so the returned pressure is stored as a
 variable in the resulting `Raster` rather than replacing the vertical depth dimension.
@@ -86,7 +78,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
     return Raster(p, rs_dims)
 
 end
-
+depth_to_pressure(stack::RasterStack) = depth_to_pressure(stack[keys(stack)[1]],
+                                                         get_dims(stack[keys(stack)[1]]))
 """
     function Sₚ_to_Sₐ(raster::Raster, p::raster, rs_dims::Tuple, find_nm::Raster)
 Convert a `Raster` of practical salinity (`Sₚ`) to absolute salinity (`Sₐ`) using
@@ -119,6 +112,11 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Sₐ, rs_dims)
 
 end
+Sₚ_to_Sₐ(stack::RasterStack, salt_var::Symbol) = Sₚ_to_Sₐ(stack[salt_var],
+                                                          depth_to_pressure(stack),
+                                                          get_dims(stack[salt_var]),
+                                                          .!ismissing.(stack[salt_var]))
+Sₚ_to_Sₐ(series::RasterSeries, salt_var::Symbol) = Sₚ_to_Sₐ.(series, salt_var)
 
 """
     function θ_to_Θ(raster::Raster, Sₐ::raster, rs_dims::Tuple, find_nm::Raster)
@@ -144,6 +142,11 @@ function θ_to_Θ(θ::Raster, Sₐ::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Θ, rs_dims)
 
 end
+θ_to_Θ(stack::RasterStack, pt_var::Symbol, salt_var::Symbol) = θ_to_Θ(stack[pt_var],
+                                                                      Sₚ_to_Sₐ(stack, salt_var),
+                                                                      get_dims(stack[pt_var]),
+                                                                      .!ismissing.(stack[pt_var]) .&& .!ismissing.(stack[salt_var]))
+θ_to_Θ(series::RasterSeries, pt_var::Symbol, salt_var::Symbol) = θ_to_Θ.(series, pt_var, salt_var)
 
 """
     function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
@@ -190,5 +193,20 @@ function potential_density(Sₐ::Raster, Θ::Raster, p::Float64, rs_dims::Tuple,
     end
 
     return Raster(σₚ, rs_dims)
+
+end
+
+"""
+    function get_dims(raster::Raster)
+Get the dimensions of a `Raster`.
+"""
+function get_dims(raster::Raster)
+
+    rs_dims = length(dims(raster))==4 ? (dims(raster, X), dims(raster, Y),
+                                         dims(raster, Z), dims(raster, Ti)) :
+                                        (dims(raster, X), dims(raster, Y),
+                                         dims(raster, Z), nothing)
+
+    return rs_dims
 
 end
