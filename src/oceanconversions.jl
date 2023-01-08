@@ -79,7 +79,7 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 
 end
 depth_to_pressure(stack::RasterStack) = depth_to_pressure(stack[keys(stack)[1]],
-                                                         get_dims(stack[keys(stack)[1]]))
+                                                          get_dims(stack[keys(stack)[1]]))
 """
     function Sₚ_to_Sₐ(raster::Raster, p::raster, rs_dims::Tuple, find_nm::Raster)
 Convert a `Raster` of practical salinity (`Sₚ`) to absolute salinity (`Sₐ`) using
@@ -112,11 +112,11 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Sₐ, rs_dims)
 
 end
-Sₚ_to_Sₐ(stack::RasterStack, salt_var::Symbol) = Sₚ_to_Sₐ(stack[salt_var],
-                                                          depth_to_pressure(stack),
-                                                          get_dims(stack[salt_var]),
-                                                          .!ismissing.(stack[salt_var]))
-Sₚ_to_Sₐ(series::RasterSeries, salt_var::Symbol) = Sₚ_to_Sₐ.(series, salt_var)
+Sₚ_to_Sₐ(stack::RasterStack, sp::Symbol) = Sₚ_to_Sₐ(stack[sp],
+                                                    depth_to_pressure(stack),
+                                                    get_dims(stack[sp]),
+                                                    .!ismissing.(stack[sp]))
+Sₚ_to_Sₐ(series::RasterSeries, sp::Symbol) = Sₚ_to_Sₐ.(series, sp)
 
 """
     function θ_to_Θ(raster::Raster, Sₐ::raster, rs_dims::Tuple, find_nm::Raster)
@@ -142,11 +142,12 @@ function θ_to_Θ(θ::Raster, Sₐ::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Θ, rs_dims)
 
 end
-θ_to_Θ(stack::RasterStack, pt_var::Symbol, salt_var::Symbol) = θ_to_Θ(stack[pt_var],
-                                                                      Sₚ_to_Sₐ(stack, salt_var),
-                                                                      get_dims(stack[pt_var]),
-                                                                      .!ismissing.(stack[pt_var]) .&& .!ismissing.(stack[salt_var]))
-θ_to_Θ(series::RasterSeries, pt_var::Symbol, salt_var::Symbol) = θ_to_Θ.(series, pt_var, salt_var)
+θ_to_Θ(stack::RasterStack, pt::Symbol, sp::Symbol) = θ_to_Θ(stack[pt],
+                                                            Sₚ_to_Sₐ(stack, sp),
+                                                            get_dims(stack[pt]),
+                                                            .!ismissing.(stack[pt]) .&&
+                                                            .!ismissing.(stack[sp]))
+θ_to_Θ(series::RasterSeries, pt::Symbol, sp::Symbol) = θ_to_Θ.(series, pt, sp)
 
 """
     function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
