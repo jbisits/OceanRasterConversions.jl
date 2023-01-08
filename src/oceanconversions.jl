@@ -203,6 +203,12 @@ Get the dimensions of a `Raster`.
 """
 function get_dims(raster::Raster)
 
+    # Use `hasdim` and throw an error about needing dims. The conversions can be made as
+    # long as there is a depth and latitude dimension (for the variables). The max number of
+    # dimensions is 4 so argument below is good but need to think about the case where there
+    # is only X and Y dim (i.e. Z has 1 dim, sea surface height presumably) can add a Zdim
+    # which would just be 0dbar. Could also be a zonal average and this is useful so what to
+    # have that capability.
     rs_dims = length(dims(raster))==4 ? (dims(raster, X), dims(raster, Y),
                                          dims(raster, Z), dims(raster, Ti)) :
                                         (dims(raster, X), dims(raster, Y),
