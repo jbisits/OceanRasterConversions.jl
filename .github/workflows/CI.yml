@@ -31,11 +31,6 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
-      - shell: bash
-          env:
-            DOWNLOAD_DATA: ${{ secrets.DOWNLOAD_DATA }}
-          run: |
-          download_data "$DOWNLOAD_DATA"
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
