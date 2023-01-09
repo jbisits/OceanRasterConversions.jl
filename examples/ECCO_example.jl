@@ -2,13 +2,13 @@
 # output.
 # First, add the required dependencies
 using Rasters, GibbsSeaWater, Plots
-include("../src/OceanRasterConversions.jl")
+include("/Users/Joey/Documents/GitHub/OceanRasterConversions.jl/src/OceanRasterConversions.jl")
 using .OceanRasterConversions
 # and download model output from ECCOv4r4 (note this needs an Earthdata account).
 # This data is the daily average 0.5 degree output of salinity and temperature. To reproduce
 # this example, an Earthdata acount is needed to download the data insert link.
 # ### Read the data into a `RasterStack`
-data_path = joinpath(pwd(), "examples/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.nc")
+data_path = "/Users/Joey/Documents/GitHub/OceanRasterConversions.jl/examples/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.nc"
 stack = RasterStack(data_path)
 # Thanks to [Rasters.jl](https://github.com/rafaqz/Rasters.jl) we now have the dimensions of
 # the data, the variables saved as layers and all the metadata in one data structure.
@@ -29,7 +29,7 @@ converted_stack = convert_ocean_vars(stack, (sp = :SALT, pt = :THETA))
 # we can then take slices of the data to look at depth-latitude plots of the returned
 # variables (note by defaul the in-situ density ρ is computed and returned)
 lon = 180
-var_plots = plot(; layout = (4, 1), size = (1000, 1000))
+var_plots = plot(; layout = (4, 1), size = (850, 1000))
 for (i, key) ∈ enumerate(keys(converted_stack))
     contourf!(var_plots[i], converted_stack[key][X(Near(lon))])
 end

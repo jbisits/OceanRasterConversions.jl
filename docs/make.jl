@@ -1,10 +1,11 @@
 using Documenter, Literate, Rasters, GibbsSeaWater, Plots
+include("../src/OceanRasterConversions.jl")
 using .OceanRasterConversions
 
-const EXAMPLES_DIR = joinpath(@__DIR__, "../..", "examples")
+const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
-example_filepath = joinpath(EXAMPLES_DIR, "ECCO_example.jl")
+example_filepath = normpath(joinpath(EXAMPLES_DIR, "ECCO_example.jl"))
 Literate.markdown(example_filepath, OUTPUT_DIR)
 Literate.script(example_filepath, OUTPUT_DIR)
 
@@ -13,9 +14,9 @@ makedocs(
         sitename = "OceanRasterConversions.jl",
         doctest = false,
         clean = true,
-        author = "Josef I. Bisits",
+        authors = "Josef I. Bisits",
         pages = Any["Home" => "index.md",
-                    "Examples" => "literated/ECCO_example.md"
+                    "Examples" => Any["ECCO model output" => "literated/ECCO_example.md"]
                     ]
         )
 
