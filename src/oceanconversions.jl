@@ -21,11 +21,11 @@ are the name of the potential temperature and salinity in the `Raster`.
 function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
                             ref_pressure = nothing)
 
-    Sₚ = stack[var_names.sp]
-    θ = stack[var_names.pt]
+    Sₚ = read(stack[var_names.sp])
+    θ = read(stack[var_names.pt])
     rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
-    find_nm = @. !ismissing(stack[:Sₚ]) && !ismissing(stack[:θ])
+    find_nm = @. !ismissing(Sₚ) && !ismissing(θ)
     Sₐ = Sₚ_to_Sₐ(Sₚ, p, rs_dims, find_nm)
     Θ = θ_to_Θ(θ, Sₐ, rs_dims, find_nm)
     converted_vars = isnothing(ref_pressure) ?
