@@ -1,5 +1,6 @@
 using Documenter, Literate, Rasters, GibbsSeaWater, Plots
-include("../src/OceanRasterConversions.jl")
+module_path = normpath(joinpath(@__DIR__, "../src"))
+include(joinpath(module_path, "OceanRasterConversions.jl"))
 using .OceanRasterConversions
 
 const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")

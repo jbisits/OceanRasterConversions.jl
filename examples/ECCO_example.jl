@@ -1,15 +1,17 @@
 # ### Converting the practical salinity and potential temperature from ECCOv4r4 model
 # output.
 # First, add the required dependencies
-using Rasters, GibbsSeaWater, Plots
+using Rasters, GibbsSeaWater, Plots, Downloads
 include("/Users/Joey/Documents/GitHub/OceanRasterConversions.jl/src/OceanRasterConversions.jl")
 using .OceanRasterConversions
 # and download model output from ECCOv4r4 (note this needs an Earthdata account).
 # This data is the daily average 0.5 degree output of salinity and temperature. To reproduce
 # this example, an Earthdata acount is needed to download the data insert link.
 # ### Read the data into a `RasterStack`
-data_path = "/Users/Joey/Documents/GitHub/OceanRasterConversions.jl/examples/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.nc"
-stack = RasterStack(data_path)
+Downloads.download("https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/ECCO_L4_TEMP_SALINITY_05DEG_DAILY_V4R4/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.nc", "ECCO_data.nc";
+                    headers = Dict("Authorization" => "jbisits:pqlV1m#ymUcRtpX9dzp"))
+
+stack = RasterStack("ECCO_data.nc")
 # Thanks to [Rasters.jl](https://github.com/rafaqz/Rasters.jl) we now have the dimensions of
 # the data, the variables saved as layers and all the metadata in one data structure.
 # From the metadata we can get a summary of the data which tells us more about the data
