@@ -4,12 +4,32 @@ rs_dims = (lons, lats, z, time)
 N = 500
 Sₚ_vals = vcat(range(33, 38, length = N), missing)
 θ_vals = vcat(range(-2, 20, length = N), missing)
+ref_pressure = 1000.0
+
+## All dimensions
 Sₚ = rand(Sₚ_vals, X(lons), Y(lats), Z(z), Ti(time))
 θ = rand(θ_vals, X(lons), Y(lats), Z(z), Ti(time))
-ref_pressure = 1000.0
 test_vars = (Sₚ = Sₚ, θ = θ)
 rs_stack = RasterStack(test_vars, (X(lons), Y(lats), Z(z), Ti(time)))
 rs_series = RasterSeries([rs_stack[Ti(t)] for t ∈ time], Ti)
+
+## No `X` dim
+Sₚ_noX = rand(Sₚ_vals, Y(lats), Z(z), Ti(time))
+θ_noX = rand(θ_vals, Y(lats), Z(z), Ti(time))
+test_vars_noX = (Sₚ = Sₚ_noX, θ = θ_noX)
+rs_stack_NoX = RasterStack(test_vars_noX, (Y(lats), Z(z), Ti(time)))
+
+## No `Y` dim
+Sₚ_noY = rand(Sₚ_vals, X(lons), Z(z), Ti(time))
+θ_noY = rand(θ_vals, X(lons), Z(z), Ti(time))
+test_vars_noY = (Sₚ = Sₚ_noY, θ = θ_noY)
+rs_stack_NoY = RasterStack(test_vars_noY, (X(lons), Z(z), Ti(time)))
+
+## No `Z` dim
+Sₚ_noZ = rand(Sₚ_vals, X(lons), Y(lats), Ti(time))
+θ_noZ = rand(θ_vals, X(lons), Y(lats), Ti(time))
+test_vars_noZ = (Sₚ = Sₚ_noZ, θ = θ_noZ)
+rs_stack_NoZ = RasterStack(test_vars_noZ, (X(lons), Y(lats), Ti(time)))
 
 ## Output to test
 converted_p = depth_to_pressure(rs_stack)

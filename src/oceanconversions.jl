@@ -60,7 +60,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 
     if isnothing(time)
 
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z)))
+        lats_array = permutedims(lats_array, (2, 1, 3))
         z_array = repeat(Array(z); outer = (1, length(lons), length(lats)))
         z_array = permutedims(z_array, (2, 3, 1))
         @. p = GibbsSeaWater.gsw_p_from_z(z_array, lats_array)
@@ -68,7 +69,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 
     else
 
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z), length(time)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z), length(time)))
+        lats_array = permutedims(lats_array, (2, 1, 3, 4))
         z_array = repeat(Array(z); outer = (1, length(lons), length(lats), length(time)))
         z_array = permutedims(z_array, (2, 3, 1, 4))
         @. p = GibbsSeaWater.gsw_p_from_z(z_array, lats_array)
@@ -93,7 +95,8 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     if isnothing(time)
 
         lons_array = repeat(Array(lons); outer = (1, length(lats), length(z)))
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z)))
+        lats_array = permutedims(lats_array, (2, 1, 3))
         @. Sₐ[find_nm] = GibbsSeaWater.gsw_sa_from_sp(Sₚ[find_nm], p[find_nm],
                                                       lons_array[find_nm],
                                                       lats_array[find_nm])
@@ -103,7 +106,8 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     else
 
         lons_array = repeat(Array(lons); outer = (1, length(lats), length(z), length(time)))
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z), length(time)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z), length(time)))
+        lats_array = permutedims(lats_array, (2, 1, 3, 4))
         @. Sₐ[find_nm] = GibbsSeaWater.gsw_sa_from_sp(Sₚ[find_nm], p[find_nm],
                                                       lons_array[find_nm],
                                                       lats_array[find_nm])
@@ -203,16 +207,22 @@ Get the dimensions of a `Raster`.
 """
 function get_dims(raster::Raster)
 
-    # Use `hasdim` and throw an error about needing dims. The conversions can be made as
-    # long as there is a depth and latitude dimension (for the variables). The max number of
-    # dimensions is 4 so argument below is good but need to think about the case where there
-    # is only X and Y dim (i.e. Z has 1 dim, sea surface height presumably) can add a Zdim
-    # which would just be 0dbar. Could also be a zonal average and this is useful so what to
-    # have that capability.
-    rs_dims = length(dims(raster))==4 ? (dims(raster, X), dims(raster, Y),
-                                         dims(raster, Z), dims(raster, Ti)) :
-                                        (dims(raster, X), dims(raster, Y),
-                                         dims(raster, Z), nothing)
+    rs_dims = if length(dims(raster))==4
+                (dims(raster, X), dims(raster, Y),
+                dims(raster, Z), dims(raster, Ti))
+              elseif !hasdim(raster, X)
+                throw(ArgumentError(
+                "To computes the absolute salinity variable the longitude dimension, `X`, is required."))
+              elseif !hasdim(raster, Y)
+                throw(ArgumentError(
+                "To compute the pressure variable the latitude dimension,`Y`, is required."))
+              elseif !hasdim(raster, Z)
+                throw(ArgumentError(
+                "To compute the pressure variable the depth dimension, `Z`, is required."))
+              elseif !hasdim(raster, Ti)
+                (dims(raster, X), dims(raster, Y),
+                dims(raster, Z), nothing)
+              end
 
     return rs_dims
 

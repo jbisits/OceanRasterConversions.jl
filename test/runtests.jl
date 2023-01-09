@@ -20,6 +20,7 @@ include("test_oceanrasterconversions.jl")
     for (i, var) ∈ enumerate(test_vars_pd)
         @test isequal(rs_stack_res_pd[var], vars_pd[i])
     end
+
 end
 
 @testset "RasterSeries conversions" begin
@@ -42,4 +43,13 @@ end
             @test isequal(rs_series_res_pd[Ti(t)][var], vars_pd[i][:, :, :, t])
         end
     end
+
+end
+
+@testset "Argument errors" begin
+
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoX, (sp = :Sₚ, pt = :θ))
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoY, (sp = :Sₚ, pt = :θ))
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoZ, (sp = :Sₚ, pt = :θ))
+
 end
