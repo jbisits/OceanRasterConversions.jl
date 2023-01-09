@@ -53,7 +53,6 @@ Sₐ = similar(Array(Sₚ))
 σₚ = similar(Array(Sₚ))
 ## Compare the standalone functions
 Sₐ_ = similar(Array(Sₚ))
-Θ_ = similar(Array(Sₚ))
 for t ∈ time
     for (i, lon) ∈ enumerate(lons), (j, lat) ∈ enumerate(lats)
 
