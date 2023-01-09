@@ -30,8 +30,7 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
 
     Sₚ = stack[var_names.sp]
     θ = stack[var_names.pt]
-    rs_dims = length(dims(Sₚ))==4 ? (dims(Sₚ, X), dims(Sₚ, Y), dims(Sₚ, Z), dims(Sₚ, Ti)) :
-                                    (dims(Sₚ, X), dims(Sₚ, Y), dims(Sₚ, Z), nothing)
+    rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
     find_nm = @. !ismissing(stack[:Sₚ]) && !ismissing(stack[:θ])
     Sₐ = Sₚ_to_Sₐ(Sₚ, p, rs_dims, find_nm)
@@ -44,19 +43,12 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
     return RasterStack(converted_vars, rs_dims)
 
 end
-function convert_ocean_vars(series::RasterSeries, var_names::NamedTuple; ref_pressure = nothing)
-
-    rs_array = Array{RasterStack}(undef, length(series))
-    for i ∈ eachindex(series)
-        rs_array[i] = convert_ocean_vars(series[i], var_names; ref_pressure)
-    end
-
-    return RasterSeries(rs_array, dims(series, Ti))
-
-end
+convert_ocean_vars(series::RasterSeries, var_names::NamedTuple;
+                  ref_pressure = nothing) = convert_ocean_vars.(series, Ref(var_names);
+                                                                ref_pressure)
 
 """
-    function depth_to_pressure(raster::Raster)
+    function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 Convert the depth dimension (`Z`) to pressure using `gsw_p_from_z`  from GibbsSeaWater.jl.
 Note that pressure depends on depth and _latitude_ so the returned pressure is stored as a
 variable in the resulting `Raster` rather than replacing the vertical depth dimension.
@@ -68,7 +60,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 
     if isnothing(time)
 
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z)))
+        lats_array = permutedims(lats_array, (2, 1, 3))
         z_array = repeat(Array(z); outer = (1, length(lons), length(lats)))
         z_array = permutedims(z_array, (2, 3, 1))
         @. p = GibbsSeaWater.gsw_p_from_z(z_array, lats_array)
@@ -76,7 +69,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
 
     else
 
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z), length(time)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z), length(time)))
+        lats_array = permutedims(lats_array, (2, 1, 3, 4))
         z_array = repeat(Array(z); outer = (1, length(lons), length(lats), length(time)))
         z_array = permutedims(z_array, (2, 3, 1, 4))
         @. p = GibbsSeaWater.gsw_p_from_z(z_array, lats_array)
@@ -86,7 +80,8 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
     return Raster(p, rs_dims)
 
 end
-
+depth_to_pressure(stack::RasterStack) = depth_to_pressure(stack[keys(stack)[1]],
+                                                          get_dims(stack[keys(stack)[1]]))
 """
     function Sₚ_to_Sₐ(raster::Raster, p::raster, rs_dims::Tuple, find_nm::Raster)
 Convert a `Raster` of practical salinity (`Sₚ`) to absolute salinity (`Sₐ`) using
@@ -100,7 +95,8 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     if isnothing(time)
 
         lons_array = repeat(Array(lons); outer = (1, length(lats), length(z)))
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z)))
+        lats_array = permutedims(lats_array, (2, 1, 3))
         @. Sₐ[find_nm] = GibbsSeaWater.gsw_sa_from_sp(Sₚ[find_nm], p[find_nm],
                                                       lons_array[find_nm],
                                                       lats_array[find_nm])
@@ -110,7 +106,8 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     else
 
         lons_array = repeat(Array(lons); outer = (1, length(lats), length(z), length(time)))
-        lats_array = repeat(Array(lats)'; outer = (length(lons), 1, length(z), length(time)))
+        lats_array = repeat(Array(lats); outer = (1, length(lons), length(z), length(time)))
+        lats_array = permutedims(lats_array, (2, 1, 3, 4))
         @. Sₐ[find_nm] = GibbsSeaWater.gsw_sa_from_sp(Sₚ[find_nm], p[find_nm],
                                                       lons_array[find_nm],
                                                       lats_array[find_nm])
@@ -119,6 +116,11 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Sₐ, rs_dims)
 
 end
+Sₚ_to_Sₐ(stack::RasterStack, sp::Symbol) = Sₚ_to_Sₐ(stack[sp],
+                                                    depth_to_pressure(stack),
+                                                    get_dims(stack[sp]),
+                                                    .!ismissing.(stack[sp]))
+Sₚ_to_Sₐ(series::RasterSeries, sp::Symbol) = Sₚ_to_Sₐ.(series, sp)
 
 """
     function θ_to_Θ(raster::Raster, Sₐ::raster, rs_dims::Tuple, find_nm::Raster)
@@ -144,6 +146,12 @@ function θ_to_Θ(θ::Raster, Sₐ::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Θ, rs_dims)
 
 end
+θ_to_Θ(stack::RasterStack, pt::Symbol, sp::Symbol) = θ_to_Θ(stack[pt],
+                                                            Sₚ_to_Sₐ(stack, sp),
+                                                            get_dims(stack[pt]),
+                                                            .!ismissing.(stack[pt]) .&&
+                                                            .!ismissing.(stack[sp]))
+θ_to_Θ(series::RasterSeries, pt::Symbol, sp::Symbol) = θ_to_Θ.(series, pt, sp)
 
 """
     function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
@@ -190,5 +198,32 @@ function potential_density(Sₐ::Raster, Θ::Raster, p::Float64, rs_dims::Tuple,
     end
 
     return Raster(σₚ, rs_dims)
+
+end
+
+"""
+    function get_dims(raster::Raster)
+Get the dimensions of a `Raster`.
+"""
+function get_dims(raster::Raster)
+
+    rs_dims = if length(dims(raster))==4
+                (dims(raster, X), dims(raster, Y),
+                dims(raster, Z), dims(raster, Ti))
+              elseif !hasdim(raster, X)
+                throw(ArgumentError(
+                "To computes the absolute salinity variable the longitude dimension, `X`, is required."))
+              elseif !hasdim(raster, Y)
+                throw(ArgumentError(
+                "To compute the pressure variable the latitude dimension,`Y`, is required."))
+              elseif !hasdim(raster, Z)
+                throw(ArgumentError(
+                "To compute the pressure variable the depth dimension, `Z`, is required."))
+              elseif !hasdim(raster, Ti)
+                (dims(raster, X), dims(raster, Y),
+                dims(raster, Z), nothing)
+              end
+
+    return rs_dims
 
 end
