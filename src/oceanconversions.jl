@@ -14,7 +14,7 @@ computed which, by default, is _in-situ_ density. Potential density at a referen
 can be computed instead by passing a the keyword argument `ref_pressure`.
 
 The name of the variables for potential temperature and salinity
-(either practical or absolute) must be passed in as a named tuple of the form
+(either practical or absolute) must be passed in as a `NamedTuple` of the form
 `(sp = :salt_name, pt = :potential_temp_name)` where `:potential_temp_name` and `:salt_name`
 are the name of the potential temperature and salinity in the `Raster`.
 """
