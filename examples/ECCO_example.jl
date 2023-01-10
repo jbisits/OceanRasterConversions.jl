@@ -9,7 +9,7 @@ using .OceanRasterConversions
 # this example, an Earthdata acount is needed to download the data insert link.
 # ### Read the data into a `RasterStack`
 Downloads.download("https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/ECCO%2520Ocean%2520Temperature%2520and%2520Salinity%2520-%2520Daily%2520Mean%25200.5%2520Degree%2520(Version%25204%2520Release%25204)/granules/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.dap.nc4", "ECCO_data.nc")
-#Downloads.download("https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/ECCO_L4_TEMP_SALINITY_05DEG_DAILY_V4R4/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.nc", "ECCO_data.nc")
+
 stack = RasterStack("ECCO_data.nc")
 # Thanks to [Rasters.jl](https://github.com/rafaqz/Rasters.jl) we now have the dimensions of
 # the data, the variables saved as layers and all the metadata in one data structure.
