@@ -10,7 +10,8 @@ concurrency:
   # Cancel intermediate builds: only if it is a pull request build.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
-build_job:
+jobs:
+  build_job:
     script:
     - |
       echo "
@@ -18,7 +19,6 @@ build_job:
       login jbisits
       password doubleBASS!1
       " > ~/.netrc
-jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
