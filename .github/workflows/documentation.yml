@@ -1,4 +1,6 @@
 name: Documentation
+env:
+  GKSwstype: "100"
 
 on:
   push:
@@ -19,6 +21,11 @@ jobs:
           version: '1.8'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+      - uses: extractions/netrc@v1
+        with:
+          machine: urs.earthdata.nasa.gov
+          username: jbisits
+          password: ${{ secrets.DOWNLOAD_DATA }}
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
