@@ -9,17 +9,15 @@ on:
 
 jobs:
   build:
-  script:
-    - |
-      echo "
-        machine urs.earthdata.nasa.gov
-        login jbisits
-        password doubleBASS!1
-      " > ~/.netrc
     permissions:
       contents: write
     runs-on: ubuntu-latest
     steps:
+      - uses: extractions/netrc@v1
+        with:
+          machine: urs.earthdata.nasa.gov
+          username: jbisits
+          password: doubleBASS!1
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
