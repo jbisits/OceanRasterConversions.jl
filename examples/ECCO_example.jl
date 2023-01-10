@@ -1,13 +1,12 @@
-# ### Converting the practical salinity and potential temperature from ECCOv4r4 model
-# output.
+# # Converting the practical salinity and potential temperature from ECCOv4r4 model output.
 # First, add the required dependencies
 using Rasters, Plots, Downloads
 include("../../../src/OceanRasterConversions.jl")
 using .OceanRasterConversions
-# and download model output from ECCOv4r4 (note this needs an Earthdata account).
+# and download model output from [ECCOv4r4](https://ecco-group.org/products-ECCO-V4r4.htm).
 # This data is the daily average 0.5 degree output of salinity and temperature. To reproduce
-# this example, an Earthdata acount is needed to download the data insert link.
-# ### Read the data into a `RasterStack`
+# this example, an Earthdata acount is needed to download the data.
+# ## Read the data into a `RasterStack`
 Downloads.download("https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/ECCO%2520Ocean%2520Temperature%2520and%2520Salinity%2520-%2520Daily%2520Mean%25200.5%2520Degree%2520(Version%25204%2520Release%25204)/granules/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.dap.nc4", "ECCO_data.nc")
 
 stack = RasterStack("ECCO_data.nc")
@@ -19,7 +18,7 @@ metadata(stack)["summary"]
 # This tells us that the temperature variable is potential temperature and the salt
 # variabile is practical salinity (for more information about this data see the user guide).
 #
-# ### Converting variables
+# ## Converting variables and plotting
 # To calculate seawater density using TEOS-10, we require absolute salinity and
 # conservative temperature. This can be done by extracting the data and using
 # [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl) or with this package,
