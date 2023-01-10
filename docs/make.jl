@@ -1,9 +1,7 @@
-using Documenter, Literate, Rasters, GibbsSeaWater, Plots
-const MODULE_DIR = normpath(joinpath(@__DIR__, "../src/OceanRasterConversions.jl"))
-include(MODULE_DIR)
+using Documenter, Literate
+include("../src/OceanRasterConversions.jl")
 using .OceanRasterConversions
-
-const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
+const EXAMPLES_DIR = normpath(joinpath(@__DIR__, "../examples"))
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
 example_filepath = normpath(joinpath(EXAMPLES_DIR, "ECCO_example.jl"))
