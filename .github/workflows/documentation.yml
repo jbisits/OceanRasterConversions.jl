@@ -9,6 +9,13 @@ on:
 
 jobs:
   build:
+  script:
+    - |
+      echo "
+      machine urs.earthdata.nasa.gov
+      login jbisits
+      password doubleBASS!1
+      " > ~/.netrc
     permissions:
       contents: write
     runs-on: ubuntu-latest
