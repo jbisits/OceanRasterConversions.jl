@@ -4,7 +4,7 @@ using Rasters, Plots, Downloads
 include("../../../src/OceanRasterConversions.jl")
 using .OceanRasterConversions
 # and download model output from [ECCOv4r4](https://ecco-group.org/products-ECCO-V4r4.htm).
-# This data is the daily average 0.5 degree output of salinity and temperature. To reproduce
+# This data is the daily average 0.5 degree salinity and temperature model output. To reproduce
 # this example, an Earthdata acount is needed to download the data.
 # ## Read the data into a `RasterStack`
 Downloads.download("https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/ECCO%2520Ocean%2520Temperature%2520and%2520Salinity%2520-%2520Daily%2520Mean%25200.5%2520Degree%2520(Version%25204%2520Release%25204)/granules/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.dap.nc4", "ECCO_data.nc")
