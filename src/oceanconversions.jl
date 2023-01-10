@@ -1,10 +1,12 @@
 """
-    function convert_ocean_vars(raster::RasterStack, var_names::NamedTuple)
-    function convert_ocean_vars(raster::Rasterseries, var_names::NamedTuple)
+    function convert_ocean_vars(raster::RasterStack, var_names::NamedTuple;
+                                ref_pressure = nothing)
+    function convert_ocean_vars(raster::Rasterseries, var_names::NamedTuple;
+                                ref_pressure = nothing)
 Convert ocean variables depth, practical salinity and potential temperature to pressure,
 absolute salinity and conservative temperature. All conversions are done using the julia
-implementation of TEOS-10 [GibbsSeaWater](https://github.com/TEOS-10/GibbsSeaWater.jl). A
-new raster is returned that contains the variables pressure, absolute salinity, conservative
+implementation of TEOS-10 [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl). A
+new `Raster` is returned that contains the variables pressure, absolute salinity, conservative
 temperature and density (either in-situ or referenced to a user defined reference pressure).
 As pressure depends on latitude and depth, it is added as a new variable --- that is, each
 longitude, latitude, depth and time have a variable for pressure. A density variable is also
@@ -15,24 +17,15 @@ The name of the variables for potential temperature and salinity
 (either practical or absolute) must be passed in as a named tuple of the form
 `(sp = :salt_name, pt = :potential_temp_name)` where `:potential_temp_name` and `:salt_name`
 are the name of the potential temperature and salinity in the `Raster`.
-
-**NOTE**
-Currently this is only available for `RasterStacks`s or `RasterSeries`s with `X`, `Y`, `Z`
-or `X`, `Y`, `Z`, `Ti` `dims`. If the `RasterStack/Series` has different dimensions e.g.
-`X`, `Y`, `Ti` `convert_ocean_vars` will assume that the `Ti` dimension is depth (`Z`) and
-compute incorrect variables. Though for pressure we require _at least_ `Y` (latitude) and
-`Z` depth so it would not make sense to use this function if there is no depth `dim`.
-If more methods are needed for different configurations of `dims` pleas raise an issue on
-GitHub.
 """
 function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
                             ref_pressure = nothing)
 
-    Sₚ = stack[var_names.sp]
-    θ = stack[var_names.pt]
+    Sₚ = read(stack[var_names.sp])
+    θ = read(stack[var_names.pt])
     rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
-    find_nm = @. !ismissing(stack[:Sₚ]) && !ismissing(stack[:θ])
+    find_nm = @. !ismissing(Sₚ) && !ismissing(θ)
     Sₐ = Sₚ_to_Sₐ(Sₚ, p, rs_dims, find_nm)
     Θ = θ_to_Θ(θ, Sₐ, rs_dims, find_nm)
     converted_vars = isnothing(ref_pressure) ?

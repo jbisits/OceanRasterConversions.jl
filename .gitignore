@@ -1,5 +1,10 @@
 /Manifest.toml
+docs/build
+docs/Manifest.toml
+docs/src/literated
 
+# data
+*.nc
 # MacOS stuff
 *.DS_Store
 
