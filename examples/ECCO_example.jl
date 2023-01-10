@@ -2,7 +2,7 @@
 # output.
 # First, add the required dependencies
 using Rasters, GibbsSeaWater, Plots, Downloads
-include("/Users/Joey/Documents/GitHub/OceanRasterConversions.jl/src/OceanRasterConversions.jl")
+include(MODULE_DIR)
 using .OceanRasterConversions
 # and download model output from ECCOv4r4 (note this needs an Earthdata account).
 # This data is the daily average 0.5 degree output of salinity and temperature. To reproduce
