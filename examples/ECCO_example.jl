@@ -1,7 +1,7 @@
 # ### Converting the practical salinity and potential temperature from ECCOv4r4 model
 # output.
 # First, add the required dependencies
-using Rasters, GibbsSeaWater, Plots, Downloads
+using Rasters, Plots, Downloads
 include("../../../src/OceanRasterConversions.jl")
 using .OceanRasterConversions
 # and download model output from ECCOv4r4 (note this needs an Earthdata account).
