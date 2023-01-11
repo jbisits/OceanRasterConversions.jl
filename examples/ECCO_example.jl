@@ -22,7 +22,7 @@ metadata(stack)["summary"]
 # To calculate seawater density using TEOS-10, we require absolute salinity and
 # conservative temperature. This can be done by extracting the data and using
 # [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl) or with this package,
-converted_stack = convert_ocean_vars(stack, (sp = :SALT, pt = :THETA))
+converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
