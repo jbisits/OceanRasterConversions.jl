@@ -10,6 +10,10 @@ include("test_oceanrasterconversions.jl")
     @test isequal(converted_Sₚ, Sₐ_)
     ## `θ_to_Θ`
     @test isequal(converted_θ, Θ)
+    ## `in_situ_density`
+    @test isequal(converted_ρ_stack, ρ)
+    ## `potential_density`
+    @test isequal(converted_σₚ_stack, σₚ)
     ## `convert_ocean_vars`
     # In situ density
     for (i, var) ∈ enumerate(test_vars_in_situ)
@@ -29,6 +33,10 @@ end
     @test isequal(converted_Sₚ_series, Sₐ_)
     ## `θ_to_Θ`
     @test isequal(converted_θ_series, Θ)
+     ## `in_situ_density`
+     @test isequal(converted_ρ_series, ρ)
+     ## `potential_density`
+     @test isequal(converted_σₚ_series, σₚ)
 
     ## `convert_ocean_vars`
     # In situ density
@@ -48,8 +56,8 @@ end
 
 @testset "Argument errors" begin
 
-    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoX, (sp = :Sₚ, pt = :θ))
-    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoY, (sp = :Sₚ, pt = :θ))
-    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoZ, (sp = :Sₚ, pt = :θ))
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoX, (Sₚ = :Sₚ, θ = :θ))
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoY, (Sₚ = :Sₚ, θ = :θ))
+    @test_throws ArgumentError convert_ocean_vars(rs_stack_NoZ, (Sₚ = :Sₚ, θ = :θ))
 
 end

@@ -30,17 +30,17 @@ Sₚ_noZ = rand(Sₚ_vals, X(lons), Y(lats), Ti(time))
 θ_noZ = rand(θ_vals, X(lons), Y(lats), Ti(time))
 test_vars_noZ = (Sₚ = Sₚ_noZ, θ = θ_noZ)
 rs_stack_NoZ = RasterStack(test_vars_noZ, (X(lons), Y(lats), Ti(time)))
-
+Sₚ
 ## Output to test
 converted_p = depth_to_pressure(rs_stack)
 converted_Sₚ = Sₚ_to_Sₐ(rs_stack, :Sₚ)
 converted_Sₚ_series = Rasters.combine(Sₚ_to_Sₐ(rs_series, :Sₚ), Ti)
-converted_θ = θ_to_Θ(rs_stack, :θ, :Sₚ)
-converted_θ_series = Rasters.combine(θ_to_Θ(rs_series, :θ, :Sₚ), Ti)
-rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (sp = :Sₚ, pt = :θ))
-rs_stack_res_pd = convert_ocean_vars(rs_stack, (sp = :Sₚ, pt = :θ); ref_pressure)
-rs_series_res_in_situ = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ))
-rs_series_res_pd = convert_ocean_vars(rs_series, (sp = :Sₚ, pt = :θ); ref_pressure)
+converted_θ = θ_to_Θ(rs_stack, (Sₚ = :Sₚ, θ = :θ))
+converted_θ_series = Rasters.combine(θ_to_Θ(rs_series, (Sₚ = :Sₚ, θ = :θ)), Ti)
+rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ))
+rs_stack_res_pd = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ); ref_pressure)
+rs_series_res_in_situ = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ))
+rs_series_res_pd = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ); ref_pressure)
 
 test_vars_in_situ = keys(rs_stack_res_in_situ)
 test_vars_pd = keys(rs_stack_res_pd)
@@ -77,6 +77,13 @@ for t ∈ time
                                                       p[i, j, find_nm_salt, t], lon, lat)
     end
 end
+
+test_stack = RasterStack((Sₐ = Sₐ, Θ = Θ, p = p), (X(lons), Y(lats), Z(z), Ti(time)))
+test_series = RasterSeries([test_stack[Ti(t)] for t ∈ time], Ti)
+converted_ρ_stack = in_situ_density(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
+converted_ρ_series = Rasters.combine(in_situ_density(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
+converted_σₚ_stack = potential_density(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure))
+converted_σₚ_series = Rasters.combine(potential_density(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure)), Ti)
 
 vars_in_situ = (p, Sₐ, Θ, ρ)
 vars_pd = (p, Sₐ, Θ, σₚ)

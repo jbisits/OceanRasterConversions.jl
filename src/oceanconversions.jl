@@ -13,16 +13,16 @@ longitude, latitude, depth and time have a variable for pressure. A density vari
 computed which, by default, is _in-situ_ density. Potential density at a reference pressure
 can be computed instead by passing a the keyword argument `ref_pressure`.
 
-The name of the variables for potential temperature and salinity
-(either practical or absolute) must be passed in as a `NamedTuple` of the form
-`(sp = :salt_name, pt = :potential_temp_name)` where `:potential_temp_name` and `:salt_name`
-are the name of the potential temperature and salinity in the `Raster`.
+The name of the variables for potential temperature and practical salinity must be passed in
+as a `NamedTuple` of the form `(Sₚ = :salt_name, θ = :potential_temp_name)` where
+`:potential_temp_name` and `:salt_name` are the name of the potential temperature and
+practical salinity in the `Raster`.
 """
 function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
                             ref_pressure = nothing)
 
-    Sₚ = read(stack[var_names.sp])
-    θ = read(stack[var_names.pt])
+    Sₚ = read(stack[var_names.Sₚ])
+    θ = read(stack[var_names.θ])
     rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
     find_nm = @. !ismissing(Sₚ) && !ismissing(θ)
@@ -73,17 +73,21 @@ function depth_to_pressure(raster::Raster, rs_dims::Tuple)
     return Raster(p, rs_dims)
 
 end
+"""
+    function depth_to_pressure(stack::RasterStack)
+Convert the depth dimension `Z` from a `RasterStack`.
+"""
 depth_to_pressure(stack::RasterStack) = depth_to_pressure(stack[keys(stack)[1]],
                                                           get_dims(stack[keys(stack)[1]]))
 """
     function Sₚ_to_Sₐ(raster::Raster, p::raster, rs_dims::Tuple, find_nm::Raster)
 Convert a `Raster` of practical salinity (`Sₚ`) to absolute salinity (`Sₐ`) using
-`gsw_sa_from_sp` from GibbsSeaWater.jl.
+`gsw_sa_from_sp` from GibbsSeaWater.jl. This conversion depends on pressure.
 """
 function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
 
     lons, lats, z, time = rs_dims
-    Sₐ = similar(Array(Sₚ), Union{Float64, Missing})
+    Sₐ = similar(Array(Sₚ))
 
     if isnothing(time)
 
@@ -109,11 +113,18 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Sₐ, rs_dims)
 
 end
-Sₚ_to_Sₐ(stack::RasterStack, sp::Symbol) = Sₚ_to_Sₐ(stack[sp],
+"""
+    function Sₚ_to_Sₐ(stack::RasterStack, Sₚ::Symbol)
+    function Sₚ_to_Sₐ(series::RasterSeries, Sₚ::Symbol)
+Convert only the practical salinity, returning the absolute salinity, from a `RasterStack`
+or `RasterSeries`. The symbol for the practical salinity in the `RasterStack/Series` must be
+passed in.
+"""
+Sₚ_to_Sₐ(stack::RasterStack, Sₚ::Symbol) = Sₚ_to_Sₐ(stack[Sₚ],
                                                     depth_to_pressure(stack),
-                                                    get_dims(stack[sp]),
-                                                    .!ismissing.(stack[sp]))
-Sₚ_to_Sₐ(series::RasterSeries, sp::Symbol) = Sₚ_to_Sₐ.(series, sp)
+                                                    get_dims(stack[Sₚ]),
+                                                    .!ismissing.(stack[Sₚ]))
+Sₚ_to_Sₐ(series::RasterSeries, Sₚ::Symbol) = Sₚ_to_Sₐ.(series, Sₚ)
 
 """
     function θ_to_Θ(raster::Raster, Sₐ::raster, rs_dims::Tuple, find_nm::Raster)
@@ -123,7 +134,7 @@ Convert a `Raster` of potential temperature (`θ`) to conservative temperature (
 function θ_to_Θ(θ::Raster, Sₐ::Raster, rs_dims::Tuple, find_nm::Raster)
 
     lons, lats, z, time = rs_dims
-    Θ = similar(Array(θ), Union{Float64, Missing})
+    Θ = similar(Array(θ))
 
     if isnothing(time)
 
@@ -139,16 +150,26 @@ function θ_to_Θ(θ::Raster, Sₐ::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Θ, rs_dims)
 
 end
-θ_to_Θ(stack::RasterStack, pt::Symbol, sp::Symbol) = θ_to_Θ(stack[pt],
-                                                            Sₚ_to_Sₐ(stack, sp),
-                                                            get_dims(stack[pt]),
-                                                            .!ismissing.(stack[pt]) .&&
-                                                            .!ismissing.(stack[sp]))
-θ_to_Θ(series::RasterSeries, pt::Symbol, sp::Symbol) = θ_to_Θ.(series, pt, sp)
+"""
+    function θ_to_Θ(stack::RasterStack, var_names::NamedTuple)
+    function θ_to_Θ(series::RasterSeries, var_names::NamedTuple)
+Convert the potential temperature, returning only the conservative temperature, from a
+`RasterStack` or a `RasterSeries`. The `var_names` must be passed in as for
+`convert_ocean_vars` ---  that is, as a named tuple in the form
+`(Sₚ = :salt_name, θ = :potential_temp_name)` where `:potential_temp_name` and
+`:salt_name` are the name of the potential temperature and salinity in the `Raster`.
+"""
+θ_to_Θ(stack::RasterStack, var_names::NamedTuple) = θ_to_Θ(stack[var_names.θ],
+                                                           Sₚ_to_Sₐ(stack, var_names.Sₚ),
+                                                           get_dims(stack[var_names.θ]),
+                                                           .!ismissing.(stack[var_names.θ]) .&&
+                                                           .!ismissing.(stack[var_names.Sₚ]))
+θ_to_Θ(series::RasterSeries, var_names::NamedTuple) = θ_to_Θ.(series, Ref(var_names))
 
 """
     function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
-Compute in-situ density using `gsw_rho` from GibbsSeaWater.jl.
+Compute in-situ density using `gsw_rho` from GibbsSeaWater.jl. This conversion depends on
+absolute salinity (`Sₐ`), conservative temperature (`Θ`) and pressure (`p`).
 """
 function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
 
@@ -169,12 +190,27 @@ function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, rs_dims::Tuple, fi
     return Raster(ρ, rs_dims)
 
 end
+"""
+    function in_situ_density(stack::RasterStack, var_names::NamedTuple)
+    function in_situ_density(series::RasterStack, var_names::NamedTuple)
+Compute and return the in-situ density `ρ` from a `RasterStack` or `RasterSeries`.
+This computation depends on absolute salinity `Sₐ`, conservative temperature `Θ`
+and pressure `p`. The variable names must be passed into the function as a `NamedTuple` in
+the form `(Sₐ = :salt_var, Θ = :temp_var, p = :pressure_var)`.
+"""
+in_situ_density(stack::RasterStack, var_names::NamedTuple) =
+    in_situ_density(stack[var_names.Sₐ], stack[var_names.Θ], stack[var_names.p],
+                    get_dims(stack[var_names.Sₐ]),
+                   .!ismissing.(stack[var_names.Sₐ]) .&& .!ismissing.(stack[var_names.Θ]))
+in_situ_density(series::RasterSeries, var_names::NamedTuple) = in_situ_density.(series, Ref(var_names))
 
 """
     function potential_density(Sₐ::Raster, Θ::Raster, p::Float64, rs_dims::Tuple, find_nm::Raster)
 Compute potential density at reference pressure `p`, `σₚ`, using `gsw_rho`  from GibbsSeaWater.jl.
+This conversion depends on absolute salinity (`Sₐ`), conservative temperature (`Θ`) and a
+user entered reference pressure (`p`).
 """
-function potential_density(Sₐ::Raster, Θ::Raster, p::Float64, rs_dims::Tuple, find_nm::Raster)
+function potential_density(Sₐ::Raster, Θ::Raster, p::Number, rs_dims::Tuple, find_nm::Raster)
 
     lons, lats, z, time = rs_dims
     σₚ = similar(Array(Θ))
@@ -193,7 +229,20 @@ function potential_density(Sₐ::Raster, Θ::Raster, p::Float64, rs_dims::Tuple,
     return Raster(σₚ, rs_dims)
 
 end
-
+"""
+    function potential_density(stack::RasterStack, var_names::NamedTuple)
+    function potential_density(series::RasterStack, var_names::NamedTuple)
+Compute and return the potential density `σₚ` at reference pressure `p` from a
+`RasterStack` or `RasterSeries`. This computation depends on absolute salinity `Sₐ`,
+conservative temperature `Θ` and a reference pressure `p`. The variable names must be
+passed into the function as a `NamedTuple` in the form
+`(Sₐ = :salt_var, Θ = :temp_var, p = ref_pressure)`. Note `p` in this case is a number.
+"""
+potential_density(stack::RasterStack, var_names::NamedTuple) =
+    potential_density(stack[var_names.Sₐ], stack[var_names.Θ], var_names.p,
+                      get_dims(stack[var_names.Sₐ]),
+                      .!ismissing.(stack[var_names.Sₐ]) .&& .!ismissing.(stack[var_names.Θ]))
+potential_density(series::RasterSeries, var_names::NamedTuple) = potential_density.(series, Ref(var_names))
 """
     function get_dims(raster::Raster)
 Get the dimensions of a `Raster`.
