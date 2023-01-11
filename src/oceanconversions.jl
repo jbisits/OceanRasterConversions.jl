@@ -173,21 +173,10 @@ absolute salinity (`Sₐ`), conservative temperature (`Θ`) and pressure (`p`).
 """
 function in_situ_density(Sₐ::Raster, Θ::Raster, p::Raster, find_nm::Raster)
 
-    rs_dims = dims(Sₐ)
     ρ = similar(Array(Sₐ))
+    @. ρ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p[find_nm])
 
-    if isnothing(time)
-
-        @. ρ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p[find_nm])
-        rs_dims = (lons, lats, z)
-
-    else
-
-        @. ρ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p[find_nm])
-
-    end
-
-    return Raster(ρ, rs_dims)
+    return Raster(ρ, dims(Sₐ))
 
 end
 """
@@ -212,21 +201,10 @@ conservative temperature (`Θ`) and a user entered reference pressure (`p`).
 """
 function potential_density(Sₐ::Raster, Θ::Raster, p::Number, find_nm::Raster)
 
-    rs_dims = dims(Sₐ)
     σₚ = similar(Array(Sₐ))
+    @. σₚ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p)
 
-    if isnothing(time)
-
-        @. σₚ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p)
-        rs_dims = (lons, lats, z)
-
-    else
-
-        @. σₚ[find_nm] = GibbsSeaWater.gsw_rho(Sₐ[find_nm], Θ[find_nm], p)
-
-    end
-
-    return Raster(σₚ, rs_dims)
+    return Raster(σₚ, dims(Sₐ))
 
 end
 """
