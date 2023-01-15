@@ -42,7 +42,8 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
                 (p = p, Sₐ = Sₐ, Θ = Θ, σₚ = get_σₚ(Sₐ, Θ, ref_pressure, find_nm))
     if with_α
         merge(converted_vars, (α = get_α(Sₐ, Θ, p, find_nm),))
-    elseif with_β
+    end
+    if with_β
         merge(converted_vars, (β = get_β(Sₐ, Θ, p, find_nm),))
     end
 
