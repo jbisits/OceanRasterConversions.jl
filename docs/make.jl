@@ -1,6 +1,4 @@
-using Documenter, Literate
-include("../src/OceanRasterConversions.jl")
-using .OceanRasterConversions
+using Documenter, Literate, OceanRasterConversions
 const EXAMPLES_DIR = normpath(joinpath(@__DIR__, "../examples"))
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
