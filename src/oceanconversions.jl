@@ -1,8 +1,12 @@
 """
     function convert_ocean_vars(raster::RasterStack, var_names::NamedTuple;
-                                ref_pressure = nothing)
+                                ref_pressure = nothing,
+                                with_α = false,
+                                with_β = false)
     function convert_ocean_vars(raster::Rasterseries, var_names::NamedTuple;
-                                ref_pressure = nothing)
+                                ref_pressure = nothing,
+                                with_α = false,
+                                with_β = false)
 Convert ocean variables depth, practical salinity and potential temperature to pressure,
 absolute salinity and conservative temperature. All conversions are done using the julia
 implementation of TEOS-10 [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl). A
@@ -12,6 +16,9 @@ As pressure depends on latitude and depth, it is added as a new variable --- tha
 longitude, latitude, depth and time have a variable for pressure. A density variable is also
 computed which, by default, is _in-situ_ density. Potential density at a reference pressure
 can be computed instead by passing a the keyword argument `ref_pressure`.
+Optional keyword arguments `with_α` and `with_β` allow the thermal expansion and haline
+contraction coefficients (respectively) to be computed and added to the returned
+`RasterStack/Series`.
 
 The name of the variables for potential temperature and practical salinity must be passed in
 as a `NamedTuple` of the form `(Sₚ = :salt_name, θ = :potential_temp_name)` where
@@ -19,7 +26,9 @@ as a `NamedTuple` of the form `(Sₚ = :salt_name, θ = :potential_temp_name)` w
 practical salinity in the `Raster`.
 """
 function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
-                            ref_pressure = nothing)
+                            ref_pressure = nothing,
+                            with_α = false,
+                            with_β = false)
 
     Sₚ = read(stack[var_names.Sₚ])
     θ = read(stack[var_names.θ])
@@ -31,13 +40,20 @@ function convert_ocean_vars(stack::RasterStack, var_names::NamedTuple;
     converted_vars = isnothing(ref_pressure) ?
                 (p = p, Sₐ = Sₐ, Θ = Θ, ρ = get_ρ(Sₐ, Θ, p, find_nm)) :
                 (p = p, Sₐ = Sₐ, Θ = Θ, σₚ = get_σₚ(Sₐ, Θ, ref_pressure, find_nm))
+    if with_α
+        merge(converted_vars, (α = get_α(Sₐ, Θ, p, find_nm),))
+    elseif with_β
+        merge(converted_vars, (β = get_β(Sₐ, Θ, p, find_nm),))
+    end
 
     return RasterStack(converted_vars, rs_dims)
 
 end
 convert_ocean_vars(series::RasterSeries, var_names::NamedTuple;
-                  ref_pressure = nothing) = convert_ocean_vars.(series, Ref(var_names);
-                                                                ref_pressure)
+                  ref_pressure = nothing,
+                  with_α = false,
+                  with_β = false) = convert_ocean_vars.(series, Ref(var_names);
+                                                                ref_pressure, with_α, with_β)
 
 """
     function depth_to_pressure(raster::Raster)
@@ -236,6 +252,66 @@ end
 get_σₚ(stack::RasterStack, var_names::NamedTuple) = get_σₚ(stack[var_names.Sₐ],
                                                            stack[var_names.Θ], var_names.p)
 get_σₚ(series::RasterSeries, var_names::NamedTuple) = get_σₚ.(series, Ref(var_names))
+
+"""
+    function get_α(Sₐ::Raster, Θ::Raster, p::Raster)
+    function get_α(stack::RasterStack, var_names::NamedTuple)
+    function get_α(series::RasterSeries, var_names::NamedTuple)
+Compute the thermal exapnsion coefficient, `α`, using `gsw_alpha` from GibbsSeaWater.jl.
+To compute `α` from a `RasterStack` or `RasterSeries` the variable names must be passed into the
+function as a `NamedTuple` in the form `(Sₐ = :salt_var, Θ = :temp_var, p = :pressure_var)`.
+The returned `Raster` will have the same dimensions as `Rasterstack` that is passed in.
+"""
+function get_α(Sₐ::Raster, Θ::Raster, p::Raster, find_nm::Raster)
+
+    α = similar(Sₐ)
+    @. α[find_nm] = GibbsSeaWater.gsw_alpha(Sₐ[find_nm], Θ[find_nm], p[find_nm])
+
+    return Raster(α, dims(Sₐ))
+
+end
+function get_α(Sₐ::Raster, Θ::Raster, p::Raster)
+
+    Sₐ, Θ, p = read(Sₐ), read(Θ), read(p)
+    find_nm = @. !ismissing(Sₐ) && !ismissing(Θ)
+
+    return get_α(Sₐ, Θ, p, find_nm)
+
+end
+get_α(stack::RasterStack, var_names::NamedTuple) = get_α(stack[var_names.Sₐ],
+                                                         stack[var_names.Θ],
+                                                         stack[var_names.p])
+get_α(series::RasterSeries, var_names::NamedTuple) = get_α.(series, Ref(var_names))
+
+"""
+    function get_β(Sₐ::Raster, Θ::Raster, p::Raster)
+    function get_β(stack::RasterStack, var_names::NamedTuple)
+    function get_β(series::RasterSeries, var_names::NamedTuple)
+Compute the haline contraction coefficient, `β`, using `gsw_beta` from GibbsSeaWater.jl.
+To compute `β` from a `RasterStack` or `RasterSeries` the variable names must be passed into the
+function as a `NamedTuple` in the form `(Sₐ = :salt_var, Θ = :temp_var, p = :pressure_var)`.
+The returned `Raster` will have the same dimensions as `Rasterstack` that is passed in.
+"""
+function get_β(Sₐ::Raster, Θ::Raster, p::Raster, find_nm::Raster)
+
+    β = similar(Sₐ)
+    @. β[find_nm] = GibbsSeaWater.gsw_beta(Sₐ[find_nm], Θ[find_nm], p[find_nm])
+
+    return Raster(β, dims(Sₐ))
+
+end
+function get_β(Sₐ::Raster, Θ::Raster, p::Raster)
+
+    Sₐ, Θ, p = read(Sₐ), read(Θ), read(p)
+    find_nm = @. !ismissing(Sₐ) && !ismissing(Θ)
+
+    return get_β(Sₐ, Θ, p, find_nm)
+
+end
+get_β(stack::RasterStack, var_names::NamedTuple) = get_β(stack[var_names.Sₐ],
+                                                         stack[var_names.Θ],
+                                                         stack[var_names.p])
+get_β(series::RasterSeries, var_names::NamedTuple) = get_β.(series, Ref(var_names))
 
 """
     function get_dims(raster::Raster)
