@@ -115,9 +115,9 @@ function Sₚ_to_Sₐ(Sₚ::Raster, p::Raster, rs_dims::Tuple, find_nm::Raster)
     return Raster(Sₐ, rs_dims)
 
 end
-function Sₚ_to_Sₐ(raster::Raster)
+function Sₚ_to_Sₐ(Sₚ::Raster)
 
-    Sₚ = read(raster)
+    Sₚ = read(Sₚ)
     rs_dims = get_dims(Sₚ)
     p = depth_to_pressure(Sₚ, rs_dims)
     find_nm = @. !ismissing(Sₚ)

@@ -32,11 +32,19 @@ test_vars_noZ = (Sₚ = Sₚ_noZ, θ = θ_noZ)
 rs_stack_NoZ = RasterStack(test_vars_noZ, (X(lons), Y(lats), Ti(time)))
 Sₚ
 ## Output to test
-converted_p = depth_to_pressure(rs_stack)
-converted_Sₚ = Sₚ_to_Sₐ(rs_stack, :Sₚ)
+# Raster
+converted_p_raster = depth_to_pressure(rs_stack[:Sₚ])
+converted_Sₚ_raster = Sₚ_to_Sₐ(rs_stack[:Sₚ])
+converted_θ_raster = θ_to_Θ(rs_stack[:θ], Sₚ_to_Sₐ(rs_stack[:Sₚ]))
+# Stacks
+converted_p_stack = depth_to_pressure(rs_stack)
+converted_Sₚ_stack = Sₚ_to_Sₐ(rs_stack, :Sₚ)
+converted_θ_stack = θ_to_Θ(rs_stack, (Sₚ = :Sₚ, θ = :θ))
+# Series
 converted_Sₚ_series = Rasters.combine(Sₚ_to_Sₐ(rs_series, :Sₚ), Ti)
-converted_θ = θ_to_Θ(rs_stack, (Sₚ = :Sₚ, θ = :θ))
+converted_θ_stack = θ_to_Θ(rs_stack, (Sₚ = :Sₚ, θ = :θ))
 converted_θ_series = Rasters.combine(θ_to_Θ(rs_series, (Sₚ = :Sₚ, θ = :θ)), Ti)
+# `convert_ocean_vars`
 rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ))
 rs_stack_res_pd = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ); ref_pressure)
 rs_series_res_in_situ = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ))
@@ -80,10 +88,12 @@ end
 
 test_stack = RasterStack((Sₐ = Sₐ, Θ = Θ, p = p), (X(lons), Y(lats), Z(z), Ti(time)))
 test_series = RasterSeries([test_stack[Ti(t)] for t ∈ time], Ti)
+converted_ρ_raster = get_ρ(test_stack[:Sₐ], test_stack[:Θ], test_stack[:p])
 converted_ρ_stack = get_ρ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
 converted_ρ_series = Rasters.combine(get_ρ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
+converted_σₚ_raster = get_σₚ(test_stack[:Sₐ], test_stack[:Θ], ref_pressure)
 converted_σₚ_stack = get_σₚ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure))
 converted_σₚ_series = Rasters.combine(get_σₚ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure)), Ti)
-get_ρ
+
 vars_in_situ = (p, Sₐ, Θ, ρ)
 vars_pd = (p, Sₐ, Θ, σₚ)
