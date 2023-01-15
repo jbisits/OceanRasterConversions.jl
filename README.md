@@ -9,3 +9,21 @@ This package converts and computes ocean varaibles that are saved as `Raster` da
 Typically, the salt and temperature variables from ocean models or observational data are practical salinity and potential temperature so conversions must be to the TEOS-10 standard variables of absolute salinity and conservative temperature to accurately calculate further variables like seawater density.
 
 ## Using the package
+
+The package is installed using Julia's package manager
+
+```julia
+julia> ]
+(@v1.8) pkg> add OceanRasterConversions
+```
+
+then press `backspace` to exit the package manager.
+To start using the package you will also need to have [Rasters.jl](https://github.com/rafaqz/Rasters.jl) installed (in the same manner as above but replace `OceanRasterConversions` with `Rasters`).
+To then use the packages type
+
+```julia
+julia> using Rasters, OceanRasterConversions
+```
+
+into the repl.
+To see a list of the exported functions from OceanRasterConversions.jl see the [documnetation](https://jbisits.github.io/OceanRasterConversions.jl/dev/#Functions-exported-from-OceanRasterConversions).

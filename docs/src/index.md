@@ -39,7 +39,9 @@ Currently the varabile symbols are:
 - `Sₐ` absolute salinity
 - `p` pressure
 - `ρ` in-situ seawater density
-- `σₚ` potential density at user defined reference pressure `ₚ`.
+- `σₚ` potential density at user defined reference pressure `ₚ`
+- `α` thermal expansion coefficient
+- `β` haline contraction coefficient.
 
 ### Limitations
 
