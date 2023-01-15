@@ -25,7 +25,7 @@ converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
 # we can then take slices of the data to look at depth-latitude plots of the returned
-# variables (note by defaul the in-situ density ρ is computed and returned)
+# variables (note by default the in-situ density `ρ` is computed and returned)
 lon = 180
 var_plots = plot(; layout = (4, 1), size = (900, 1000))
 for (i, key) ∈ enumerate(keys(converted_stack))
