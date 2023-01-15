@@ -30,7 +30,7 @@ Sₚ_noZ = rand(Sₚ_vals, X(lons), Y(lats), Ti(time))
 θ_noZ = rand(θ_vals, X(lons), Y(lats), Ti(time))
 test_vars_noZ = (Sₚ = Sₚ_noZ, θ = θ_noZ)
 rs_stack_NoZ = RasterStack(test_vars_noZ, (X(lons), Y(lats), Ti(time)))
-Sₚ
+
 ## Output to test
 # Raster
 converted_p_raster = depth_to_pressure(rs_stack[:Sₚ])
@@ -45,9 +45,11 @@ converted_Sₚ_series = Rasters.combine(Sₚ_to_Sₐ(rs_series, :Sₚ), Ti)
 converted_θ_stack = θ_to_Θ(rs_stack, (Sₚ = :Sₚ, θ = :θ))
 converted_θ_series = Rasters.combine(θ_to_Θ(rs_series, (Sₚ = :Sₚ, θ = :θ)), Ti)
 # `convert_ocean_vars`
-rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ))
+rs_stack_res_in_situ = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ);
+                                          with_α = true, with_β = true)
 rs_stack_res_pd = convert_ocean_vars(rs_stack, (Sₚ = :Sₚ, θ = :θ); ref_pressure)
-rs_series_res_in_situ = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ))
+rs_series_res_in_situ = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ);
+                                           with_α = true, with_β = true)
 rs_series_res_pd = convert_ocean_vars(rs_series, (Sₚ = :Sₚ, θ = :θ); ref_pressure)
 
 test_vars_in_situ = keys(rs_stack_res_in_situ)
@@ -59,6 +61,8 @@ Sₐ = similar(Array(Sₚ))
 Θ = similar(Array(Sₚ))
 ρ = similar(Array(Sₚ))
 σₚ = similar(Array(Sₚ))
+α = similar(Array(Sₚ))
+β = similar(Array(Sₚ))
 ## Compare the standalone functions
 Sₐ_ = similar(Array(Sₚ))
 for t ∈ time
@@ -80,6 +84,12 @@ for t ∈ time
         σₚ[i, j, find_nm, t] .= gsw_rho.(Sₐ[i, j, find_nm, t],
                                          Θ[i, j, find_nm, t],
                                          ref_pressure)
+        α[i, j, find_nm, t] .= gsw_alpha.(Sₐ[i, j, find_nm, t],
+                                          Θ[i, j, find_nm, t],
+                                          p[i, j, find_nm, t])
+        β[i, j, find_nm, t] .= gsw_beta.(Sₐ[i, j, find_nm, t],
+                                          Θ[i, j, find_nm, t],
+                                          p[i, j, find_nm, t])
         find_nm_salt = findall(.!ismissing.(Sₚ[i, j, :, t]))
         Sₐ_[i, j, find_nm_salt, t] .= gsw_sa_from_sp.(Sₚ[i, j, find_nm_salt, t],
                                                       p[i, j, find_nm_salt, t], lon, lat)
@@ -88,12 +98,21 @@ end
 
 test_stack = RasterStack((Sₐ = Sₐ, Θ = Θ, p = p), (X(lons), Y(lats), Z(z), Ti(time)))
 test_series = RasterSeries([test_stack[Ti(t)] for t ∈ time], Ti)
+# Rasters
 converted_ρ_raster = get_ρ(test_stack[:Sₐ], test_stack[:Θ], test_stack[:p])
-converted_ρ_stack = get_ρ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
-converted_ρ_series = Rasters.combine(get_ρ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
 converted_σₚ_raster = get_σₚ(test_stack[:Sₐ], test_stack[:Θ], ref_pressure)
+converted_α_raster = get_α(test_stack[:Sₐ], test_stack[:Θ], test_stack[:p])
+converted_β_raster = get_β(test_stack[:Sₐ], test_stack[:Θ], test_stack[:p])
+# Stacks
+converted_ρ_stack = get_ρ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
 converted_σₚ_stack = get_σₚ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure))
+converted_α_stack = get_α(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
+converted_β_stack = get_β(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
+#Series
+converted_ρ_series = Rasters.combine(get_ρ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
 converted_σₚ_series = Rasters.combine(get_σₚ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure)), Ti)
+converted_α_series = Rasters.combine(get_α(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
+converted_β_series = Rasters.combine(get_β(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
 
-vars_in_situ = (p, Sₐ, Θ, ρ)
+vars_in_situ = (p, Sₐ, Θ, ρ, α, β)
 vars_pd = (p, Sₐ, Θ, σₚ)
