@@ -80,10 +80,10 @@ end
 
 test_stack = RasterStack((Sₐ = Sₐ, Θ = Θ, p = p), (X(lons), Y(lats), Z(z), Ti(time)))
 test_series = RasterSeries([test_stack[Ti(t)] for t ∈ time], Ti)
-converted_ρ_stack = in_situ_density(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
-converted_ρ_series = Rasters.combine(in_situ_density(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
-converted_σₚ_stack = potential_density(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure))
-converted_σₚ_series = Rasters.combine(potential_density(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure)), Ti)
-
+converted_ρ_stack = get_ρ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = :p))
+converted_ρ_series = Rasters.combine(get_ρ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = :p)), Ti)
+converted_σₚ_stack = get_σₚ(test_stack, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure))
+converted_σₚ_series = Rasters.combine(get_σₚ(test_series, (Sₐ = :Sₐ, Θ = :Θ, p = ref_pressure)), Ti)
+get_ρ
 vars_in_situ = (p, Sₐ, Θ, ρ)
 vars_pd = (p, Sₐ, Θ, σₚ)
