@@ -221,7 +221,7 @@ get_ρ(stack::RasterStack, var_names::NamedTuple) = get_ρ(stack[var_names.Sₐ]
 get_ρ(series::RasterSeries, var_names::NamedTuple) = get_ρ.(series, Ref(var_names))
 
 """
-    function get_σₚ(Sₐ::Raster, Θ::Raster, p::Float64)
+    function get_σₚ(Sₐ::Raster, Θ::Raster, p::Number)
     function get_σₚ(stack::RasterStack, var_names::NamedTuple)
     function get_σₚ(series::RasterStack, var_names::NamedTuple)
 Compute potential density at reference pressure `p`, `σₚ`, using `gsw_rho`
