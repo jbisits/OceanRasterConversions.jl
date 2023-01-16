@@ -316,8 +316,7 @@ get_β(series::RasterSeries, var_names::NamedTuple) = get_β.(series, Ref(var_na
 
 """
     function get_dims(raster::Raster)
-    function get_dims(stack::RasterStack)
-Get the dimensions of a `Raster` or `RasterStack`.
+Get the dimensions of a `Raster`.
 """
 function get_dims(raster::Raster)
 
@@ -326,7 +325,7 @@ function get_dims(raster::Raster)
                 dims(raster, Z), dims(raster, Ti))
               elseif !hasdim(raster, X)
                 throw(ArgumentError(
-                "To computes the absolute salinity variable the longitude dimension, `X`, is required."))
+                "To compute the absolute salinity variable the longitude dimension, `X`, is required."))
               elseif !hasdim(raster, Y)
                 throw(ArgumentError(
                 "To compute the pressure variable the latitude dimension,`Y`, is required."))

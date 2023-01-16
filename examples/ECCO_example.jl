@@ -24,8 +24,8 @@ converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
-# we can, for example, look at the sea-surface (conservative) temperature
-contourf(converted_stack[:Θ][Z(At(0.0))])
+# we can, for example, look at the conservative temperature closest to the sea-surface (-0.5m)
+contourf(converted_stack[:Θ][Z(At(-0.5))])
 
 # We can also take slices of the data to look at depth-latitude plots of the returned
 # variables (note by default the in-situ density `ρ` is computed and returned)
