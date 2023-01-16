@@ -1,7 +1,7 @@
 name = "OceanRasterConversions"
 uuid = "07ff2621-03e0-4bfb-9812-e5d28c6dbff8"
-authors = ["Josef I. Bisits"]
-version = "0.1.0"
+authors = ["Josef I. Bisits <jbisits@gmail.com>"]
+version = "0.2.0"
 
 [deps]
 GibbsSeaWater = "9a22fb26-0b63-4589-b28e-8f9d0b5c3d05"
