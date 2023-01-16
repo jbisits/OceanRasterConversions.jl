@@ -1,5 +1,6 @@
 # OceanRasterConversions.jl
 
+[![Doc stable badge](https://img.shields.io/badge/docs-stable-blue.svg)](https://jbisits.github.io/OceanRasterConversions.jl/stable/)
 [![Doc dev badge](https://img.shields.io/badge/docs-dev-blue.svg)](https://jbisits.github.io/OceanRasterConversions.jl/dev/)
 [![Build Status](https://github.com/jbisits/OceanRasterConversions.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jbisits/OceanRasterConversions.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/jbisits/OceanRasterConversions.jl/branch/main/graph/badge.svg?token=XEAWB8IHFV)](https://codecov.io/gh/jbisits/OceanRasterConversions.jl)
