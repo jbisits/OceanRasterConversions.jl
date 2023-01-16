@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package converts ocean varaibles that are saved as `Raster` data structures using [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl).
+This package converts and computes ocean varaibles that are saved as `Raster` data structures using [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl).
 [Rasters.jl](https://github.com/rafaqz/Rasters.jl) provides excellent reading, writing and manipulation of geospatial data.
 Typically, the salt and temperature variables from ocean models or observational data are practical salinity and potential temperature so conversions must be to the TEOS-10 standard variables of absolute salinity and conservative temperature to accurately calculate further variables like seawater density.
 
@@ -39,7 +39,9 @@ Currently the varabile symbols are:
 - `Sₐ` absolute salinity
 - `p` pressure
 - `ρ` in-situ seawater density
-- `σₚ` potential density at user defined reference pressure `ₚ`.
+- `σₚ` potential density at user defined reference pressure `ₚ`
+- `α` thermal expansion coefficient
+- `β` haline contraction coefficient.
 
 ### Limitations
 
@@ -67,4 +69,6 @@ Sₚ_to_Sₐ
 θ_to_Θ
 get_ρ
 get_σₚ
+get_α
+get_β
 ```

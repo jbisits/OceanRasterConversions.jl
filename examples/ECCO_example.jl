@@ -16,18 +16,21 @@ metadata(stack)["summary"]
 # This tells us that the temperature variable is potential temperature and the salt
 # variabile is practical salinity (for more information about this data see the user guide).
 #
-# ## Converting variables and plotting
-# To calculate seawater density using TEOS-10, we require absolute salinity and
-# conservative temperature. This can be done by extracting the data and using
+# ## Converting all variables and plotting
+# To calculate seawater density using TEOS-10, we require absolute salinity, conservative
+# temperature and pressure. This can be done by extracting the data and using
 # [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl) or with this package,
 converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
-# we can then take slices of the data to look at depth-latitude plots of the returned
-# variables (note by defaul the in-situ density ρ is computed and returned)
+# we can, for example, look at the conservative temperature closest to the sea-surface (-5.0m)
+contourf(converted_stack[:Θ][Z(Near(0.0))]; color = :balance, colorbar_title = "ᵒC")
+
+# We can also take slices of the data to look at depth-latitude plots of the returned
+# variables (note by default the in-situ density `ρ` is computed and returned)
 lon = 180
-var_plots = plot(; layout = (4, 1), size = (900, 1000))
+var_plots = plot(; layout = (4, 1), size = (1000, 1000))
 for (i, key) ∈ enumerate(keys(converted_stack))
     contourf!(var_plots[i], converted_stack[key][X(Near(lon))])
 end
@@ -35,3 +38,24 @@ var_plots
 # As this is a `RasterStack` all methods exported by Rasters.jl will work. See the
 # [documentation for Rasters.jl](https://rafaqz.github.io/Rasters.jl/stable/#Rasters.jl)
 # for more information.
+
+# ## Converting chosen variables
+# It is also possible to convert only chosen variables from a `RasterStack`. If we just want
+# to look at temperature-salinity vertical profiles, we can convert the practical salinity
+# and conservative temperature then extact vertical profiles and compute the potential
+# density referenced to 0dbar
+Sₐ = Sₚ_to_Sₐ(stack, :SALT)
+Θ = θ_to_Θ(stack, (Sₚ = :SALT, θ = :THETA))
+lon, lat = -100.0, -70.0
+Sₐ_profile, Θ_profile = Sₐ[X(Near(lon)), Y(Near(lat)), Ti(1)],
+                         Θ[X(Near(lon)), Y(Near(lat)), Ti(1)]
+σ₀_profile = get_σₚ(Sₐ_profile, Θ_profile, 0)
+profile_plots = plot(; layout = (2, 2), size = (800, 800))
+plot!(profile_plots[1, 1], Sₐ_profile;
+      title = "Sₐ-depth", xmirror = true, xlabel = "Sₐ (g/kg)")
+plot!(profile_plots[1, 2], Θ_profile;
+      title = "Θ-depth", xmirror = true, xlabel = "Θ (ᵒC)")
+plot!(profile_plots[2, 1], Sₐ_profile, Θ_profile;
+      xlabel = "Sₐ (g/kg)", ylabel = "Θ (ᵒC)", label = false, title = "Sₐ-Θ")
+plot!(profile_plots[2, 2], σ₀_profile;
+      title = "σ₀-depth", xmirror = true, xlabel = "σ₀ (kgm⁻³)")
