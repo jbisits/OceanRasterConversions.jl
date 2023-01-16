@@ -24,8 +24,8 @@ converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
-# we can, for example, look at the conservative temperature closest to the sea-surface (-0.5m)
-contourf(converted_stack[:Θ][Z(At(-0.5))])
+# we can, for example, look at the conservative temperature closest to the sea-surface (-5.0m)
+contourf(converted_stack[:Θ][Z(Near(0.0))]; color = :balance, colorbar_title = "ᵒC")
 
 # We can also take slices of the data to look at depth-latitude plots of the returned
 # variables (note by default the in-situ density `ρ` is computed and returned)
@@ -40,17 +40,22 @@ var_plots
 # for more information.
 
 # ## Converting chosen variables
-# It is also possible to convert only chosen variables. If we just want to look at
-# temperature-salinity vertical profiles, we can first select the vertical profile(s) we are
-# interested in then convert them and calculate the potential density reference to 0dbar
+# It is also possible to convert only chosen variables from a `RasterStack`. If we just want
+# to look at temperature-salinity vertical profiles, we can convert the practical salinity
+# and conservative temperature then extact vertical profiles and compute the potential
+# density referenced to 0dbar
+Sₐ = Sₚ_to_Sₐ(stack, :SALT)
+Θ = θ_to_Θ(stack, (Sₚ = :SALT, θ = :THETA))
 lon, lat = -100.0, -70.0
-Sₚ_profile, θ_profile = stack[:SALT][X(Near(lon)), Y(Near(lat)), Ti(1)],
-                        stack[:THETA][X(Near(lon)), Y(Near(lat)), Ti(1)]
-Sₐ_profile = Sₚ_to_Sₐ(Sₚ_profile)
-Θ_profile = θ_to_Θ(θ_profile, Sₐ_profile)
+Sₐ_profile, Θ_profile = Sₐ[X(Near(lon)), Y(Near(lat)), Ti(1)],
+                         Θ[X(Near(lon)), Y(Near(lat)), Ti(1)]
 σ₀_profile = get_σₚ(Sₐ_profile, Θ_profile, 0)
 profile_plots = plot(; layout = (2, 2), size = (800, 800))
-plot!(profile_plots[1, 1], Sₐ_profile)
-plot!(profile_plots[1, 2], Θ_profile)
-plot!(profile_plots[2, 1], Sₐ_profile, Θ_profile)
-plot!(profile_plots[2, 2], σ₀_profile)
+plot!(profile_plots[1, 1], Sₐ_profile;
+      title = "Sₐ-depth", xmirror = true, xlabel = "Sₐ (g/kg)")
+plot!(profile_plots[1, 2], Θ_profile;
+      title = "Θ-depth", xmirror = true, xlabel = "Θ (ᵒC)")
+plot!(profile_plots[2, 1], Sₐ_profile, Θ_profile;
+      xlabel = "Sₐ (g/kg)", ylabel = "Θ (ᵒC)", label = false, title = "Sₐ-Θ")
+plot!(profile_plots[2, 2], σ₀_profile;
+      title = "σ₀-depth", xmirror = true, xlabel = "σ₀ (kgm⁻³)")
