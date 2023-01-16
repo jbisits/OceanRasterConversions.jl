@@ -1,6 +1,6 @@
 name = "OceanRasterConversions"
 uuid = "07ff2621-03e0-4bfb-9812-e5d28c6dbff8"
-authors = ["Josef I. Bisits"]
+authors = ["Josef I. Bisits <jbisits@gmail.com>"]
 version = "0.2.0"
 
 [deps]
