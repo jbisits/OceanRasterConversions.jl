@@ -60,6 +60,11 @@ This is equivalent to a two dimensional `RasterStack` at sea-surface height (z =
 Currently the only dimension names that are supported are `X`, `Y`, `Z`, and `Ti`.
 Allowing for user specified dimensions has not yet been implemented.
 
+At this stage it is also not possible to slice a `Raster` then convert it.
+This is something that will be implemented at some stage.
+For details on why this is the case see [this issue](https://github.com/jbisits/OceanRasterConversions.jl/issues/27).
+As the [example shows](https://jbisits.github.io/OceanRasterConversions.jl/dev/literated/ECCO_example/#Converting-chosen-variables) it is straightforward to first convert a `Raster` and then slice it.
+
 ## Functions exported from `OceanRasterConversions`
 
 ```@docs
