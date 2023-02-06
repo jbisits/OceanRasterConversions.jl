@@ -86,10 +86,11 @@ end
 # offers.
 fig = Figure(size = (800, 500))
 ax = GeoAxis(fig[1, 1];
-          xlabel = "Longitude (ᵒE)",
-          ylabel = "Latitude (ᵒN)",
-          title = "Sea Surface temperature")
+          xlabel = "Longitude",
+          ylabel = "Latitude",
+          title = "Sea Surface temperature",
+          coastlines = true)
 cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(0.0)), Ti(1)];
                           colormap = :balance)
-Colorbar(fig[1, 2], cp; label = "Θ (ᵒC)")
+Colorbar(fig[2, 1], cp; label = "Θ (ᵒC)", vertical = false, flipaxis = false)
 fig
