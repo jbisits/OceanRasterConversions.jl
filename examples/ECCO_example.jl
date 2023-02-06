@@ -67,11 +67,10 @@ plot!(profile_plots[2, 2], σ₀_profile;
 # for `convert_arguments` to convert a `Raster` into a format that can be plotted by
 # Makie.jl. For more information on implementing type recipes for plotting custom types in
 # Makie.jl see the
-# [Makie.jl documentation](https://docs.makie.org/stable/documentation/recipes/). We can
-# write a `convert_arguments` method to convert a `Raster` that will then plot a `contourf`
-# or some other `SurfaceLike` plot type.
-# **Note** this is a specific version of this function designed to work with this example
-# so is unlikely to be able to used elsewhere.
+# [Makie.jl plot recipes documentation](https://docs.makie.org/stable/documentation/recipes/).
+# The `convert_arguments` method extracts the longitude and latitude `dims` from a `Raster`
+# as well as the values for the chosen variable. The `SurfaceLike` argument converts the
+# data so we can plot a `contourf`, `heatmap` or other `SurfaceLike` plotting functions.
 using GeoMakie, CairoMakie
 
 function Makie.convert_arguments(P::SurfaceLike, rs::Raster)
@@ -82,8 +81,16 @@ function Makie.convert_arguments(P::SurfaceLike, rs::Raster)
     return convert_arguments(P, lon, lat, plot_var)
 
 end
-# Then we can plot onto a `GeoAxis` and take advantage of the extra features GeoMakie.jl
-# offers.
+# !!! info "convert_arguments method"
+#     This is a specific method for `convert_arguments` written for this data. To plot
+#     different data (or other parts of this data, e.g. depth-latitude) that are in `Raster`
+#     data structures, more methods need to be added to `convert_arguments` that extract the
+#     desired parts of the `Raster`.
+# Now we can plot a `Raster` onto `GeoAxis` and take advantage of the extra features
+# GeoMakie.jl offers, like map projections
+# (see [GeoMakie.jl documentation](https://geo.makie.org/stable/#Map-projections) for more
+# information about available projections and how to set them), automatic axis limits and
+# coastlines.
 fig = Figure(size = (800, 500))
 ax = GeoAxis(fig[1, 1];
           xlabel = "Longitude",
