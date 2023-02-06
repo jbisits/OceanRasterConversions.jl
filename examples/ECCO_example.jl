@@ -60,3 +60,35 @@ plot!(profile_plots[2, 1], Sₐ_profile, Θ_profile;
       xlabel = "Sₐ (g/kg)", ylabel = "Θ (ᵒC)", label = false, title = "Sₐ-Θ")
 plot!(profile_plots[2, 2], σ₀_profile;
       title = "σ₀-depth", xmirror = true, xlabel = "σ₀ (kgm⁻³)")
+
+# ## Plotting with [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl)
+# At this stage there are no recipes to plot a `Raster` in GeoMakie.jl (or any of the other
+# [Makie.jl](https://github.com/MakieOrg/Makie.jl) backends) though we can write a method
+# for `convert_arguments` to convert a `Raster` into a format that can be plotted by
+# Makie.jl. For more information on implementing type recipes for plotting custom types in
+# Makie.jl see the
+# [Makie.jl documentation](https://docs.makie.org/stable/documentation/recipes/). We can
+# write a `convert_arguments` method to convert a `Raster` that will then plot a `contourf`
+# or some other `SurfaceLike` plot type.
+# **Note** this is a specific version of this function designed to work with this example
+# so is unlikely to be able to used elsewhere.
+using GeoMakie, CairoMakie
+
+function Makie.convert_arguments(P::SurfaceLike, rs::Raster)
+
+    lon, lat = collect(lookup(rs, X)), collect(lookup(rs, Y))
+    plot_var = Matrix(rs[:, :])
+
+    return convert_arguments(P, lon, lat, plot_var)
+
+end
+# Then we can plot onto a `GeoAxis` and take advantage of the extra features GeoMakie.jl
+# offers.
+fig = Figure(size = (800, 500))
+ax = GeoAxis(fig[1, 1];
+          xlabel = "Longitude (ᵒE)",
+          ylabel = "Latitude (ᵒN)",
+          title = "Sea Surface temperature")
+cp = contourf!(ax, converted_stack[:Θ][Z(Near(0.0))])
+Colorbar(fig[1, 2], cp; label = "Θ (ᵒC)", color = :balance)
+fig
