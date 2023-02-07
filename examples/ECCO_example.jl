@@ -25,7 +25,7 @@ converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
 # we can, for example, look at the conservative temperature closest to the sea-surface (-5.0m)
-contourf(converted_stack[:Θ][Z(Near(0.0))]; size = (800, 500),
+contourf(converted_stack[:Θ][Z(Near(0.0)), Ti(1)]; size = (800, 500),
          color = :balance, colorbar_title = "ᵒC")
 
 # We can also take slices of the data to look at depth-latitude plots of the returned
@@ -42,9 +42,9 @@ var_plots
 
 # ## Converting chosen variables
 # It is also possible to convert only chosen variables from a `RasterStack`. If we just want
-# to look at temperature-salinity vertical profiles, we can convert the practical salinity
-# and conservative temperature then extact vertical profiles and compute the potential
-# density referenced to 0dbar
+# to look at conservative temperature - absolute salinity vertical profiles, we can convert
+# the practical salinity and potential temperature then extract vertical profiles
+# and compute the potential density referenced to 0dbar
 Sₐ = Sₚ_to_Sₐ(stack, :SALT)
 Θ = θ_to_Θ(stack, (Sₚ = :SALT, θ = :THETA))
 lon, lat = -100.0, -70.0
@@ -60,3 +60,47 @@ plot!(profile_plots[2, 1], Sₐ_profile, Θ_profile;
       xlabel = "Sₐ (g/kg)", ylabel = "Θ (ᵒC)", label = false, title = "Sₐ-Θ")
 plot!(profile_plots[2, 2], σ₀_profile;
       title = "σ₀-depth", xmirror = true, xlabel = "σ₀ (kgm⁻³)")
+
+# ## Plotting with [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl)
+# At this stage there are no recipes to plot a `Raster` in GeoMakie.jl (or any of the other
+# [Makie.jl](https://github.com/MakieOrg/Makie.jl) backends) though we can write a method
+# for `convert_arguments` to convert a `Raster` into a format that can be plotted by
+# Makie.jl. For more information on implementing type recipes for plotting custom types in
+# Makie.jl see the
+# [Makie.jl plot recipes documentation](https://docs.makie.org/stable/documentation/recipes/).
+# The `convert_arguments` method extracts the longitude and latitude `dims` from a `Raster`
+# as well as the values for the chosen variable. The `SurfaceLike` argument converts the
+# data so we can use the `contourf`, `heatmap` or other `SurfaceLike` plotting functions.
+using GeoMakie, CairoMakie
+
+function Makie.convert_arguments(P::SurfaceLike, rs::Raster)
+
+    lon, lat = collect(lookup(rs, X)), collect(lookup(rs, Y))
+    plot_var = Matrix(rs[:, :])
+
+    return convert_arguments(P, lon, lat, plot_var)
+
+end
+# !!! info "convert_arguments method"
+#     This is a specific method for `convert_arguments` written for this data. To plot
+#     different data (or other parts of this data, e.g. depth-latitude) that are in `Raster`
+#     data structures, more methods need to be added to `convert_arguments` that extract the
+#     desired parts of the `Raster`.
+# Now we can plot a `Raster` onto a `GeoAxis` and take advantage of the extra features
+# GeoMakie.jl offers, like map projections
+# (see the [GeoMakie.jl documentation](https://geo.makie.org/stable/#Map-projections) for more
+# information about available projections and how to set them), automatic axis limits and
+# coastlines.
+date = lookup(converted_stack, Ti)[1] # get the date from the `Raster`
+depth = 0.0                           # choose a depth to look at the ocean temperature
+fig = Figure(size = (800, 500))
+ax = GeoAxis(fig[1, 1];
+             xlabel = "Longitude",
+             ylabel = "Latitude",
+             title = "Ocean conservative temperature at depth $(depth)m",
+             subtitle = "$date",
+             coastlines = true)
+cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(depth)), Ti(At(date))];
+                          colormap = :balance)
+Colorbar(fig[2, 1], cp; label = "Θ (ᵒC)", vertical = false, flipaxis = false)
+fig
