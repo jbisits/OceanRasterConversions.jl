@@ -42,9 +42,9 @@ var_plots
 
 # ## Converting chosen variables
 # It is also possible to convert only chosen variables from a `RasterStack`. If we just want
-# to look at temperature-salinity vertical profiles, we can convert the practical salinity
-# and conservative temperature then extact vertical profiles and compute the potential
-# density referenced to 0dbar
+# to look at conservative temperature - absolute salinity vertical profiles, we can convert
+# the practical salinity and potential temperature then extract vertical profiles
+# and compute the potential density referenced to 0dbar
 Sₐ = Sₚ_to_Sₐ(stack, :SALT)
 Θ = θ_to_Θ(stack, (Sₚ = :SALT, θ = :THETA))
 lon, lat = -100.0, -70.0
