@@ -25,7 +25,7 @@ converted_stack = convert_ocean_vars(stack, (Sₚ = :SALT, θ = :THETA))
 # Note that this is a new `RasterStack`, so the metadata from the original `RasterStack` is
 # not attached. As we have a returned `RasterStack` and plotting recipes have been written,
 # we can, for example, look at the conservative temperature closest to the sea-surface (-5.0m)
-contourf(converted_stack[:Θ][Z(Near(0.0))]; size = (800, 500),
+contourf(converted_stack[:Θ][Z(Near(0.0)), Ti(1)]; size = (800, 500),
          color = :balance, colorbar_title = "ᵒC")
 
 # We can also take slices of the data to look at depth-latitude plots of the returned
@@ -88,16 +88,19 @@ end
 #     desired parts of the `Raster`.
 # Now we can plot a `Raster` onto a `GeoAxis` and take advantage of the extra features
 # GeoMakie.jl offers, like map projections
-# (see [GeoMakie.jl documentation](https://geo.makie.org/stable/#Map-projections) for more
+# (see the [GeoMakie.jl documentation](https://geo.makie.org/stable/#Map-projections) for more
 # information about available projections and how to set them), automatic axis limits and
 # coastlines.
+date = lookup(converted_stack, Ti)[1] # get the date from the `Raster`
+depth = 0.0                           # choose a depth to look at the ocean temperature
 fig = Figure(size = (800, 500))
 ax = GeoAxis(fig[1, 1];
           xlabel = "Longitude",
           ylabel = "Latitude",
-          title = "Sea Surface temperature",
+          title = "Ocean conservative temperature at depth $(depth)m",
+          subtitle = "$date",
           coastlines = true)
-cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(0.0)), Ti(1)];
+cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(depth)), Ti(At(date))];
                           colormap = :balance)
 Colorbar(fig[2, 1], cp; label = "Θ (ᵒC)", vertical = false, flipaxis = false)
 fig
