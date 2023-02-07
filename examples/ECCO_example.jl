@@ -95,11 +95,11 @@ date = lookup(converted_stack, Ti)[1] # get the date from the `Raster`
 depth = 0.0                           # choose a depth to look at the ocean temperature
 fig = Figure(size = (800, 500))
 ax = GeoAxis(fig[1, 1];
-          xlabel = "Longitude",
-          ylabel = "Latitude",
-          title = "Ocean conservative temperature at depth $(depth)m",
-          subtitle = "$date",
-          coastlines = true)
+             xlabel = "Longitude",
+             ylabel = "Latitude",
+             title = "Ocean conservative temperature at depth $(depth)m",
+             subtitle = "$date",
+             coastlines = true)
 cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(depth)), Ti(At(date))];
                           colormap = :balance)
 Colorbar(fig[2, 1], cp; label = "Θ (ᵒC)", vertical = false, flipaxis = false)
