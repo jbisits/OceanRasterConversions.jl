@@ -70,7 +70,7 @@ plot!(profile_plots[2, 2], σ₀_profile;
 # [Makie.jl plot recipes documentation](https://docs.makie.org/stable/documentation/recipes/).
 # The `convert_arguments` method extracts the longitude and latitude `dims` from a `Raster`
 # as well as the values for the chosen variable. The `SurfaceLike` argument converts the
-# data so we can plot a `contourf`, `heatmap` or other `SurfaceLike` plotting functions.
+# data so we can use the `contourf`, `heatmap` or other `SurfaceLike` plotting functions.
 using GeoMakie, CairoMakie
 
 function Makie.convert_arguments(P::SurfaceLike, rs::Raster)
@@ -86,7 +86,7 @@ end
 #     different data (or other parts of this data, e.g. depth-latitude) that are in `Raster`
 #     data structures, more methods need to be added to `convert_arguments` that extract the
 #     desired parts of the `Raster`.
-# Now we can plot a `Raster` onto `GeoAxis` and take advantage of the extra features
+# Now we can plot a `Raster` onto a `GeoAxis` and take advantage of the extra features
 # GeoMakie.jl offers, like map projections
 # (see [GeoMakie.jl documentation](https://geo.makie.org/stable/#Map-projections) for more
 # information about available projections and how to set them), automatic axis limits and
