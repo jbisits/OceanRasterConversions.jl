@@ -15,7 +15,3 @@ end
 array_hist = fit(Histogram, (Sₚ_vec, θ_vec), test_hist_bins)
 
 hist_fields = (:closed, :edges, :isdensity, :weights)
-for hf ∈ hist_fields
-    println(getproperty(raster_hist, hf))
-    #println(array_hist.$(hf))
-end
