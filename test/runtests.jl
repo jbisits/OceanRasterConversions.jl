@@ -1,4 +1,4 @@
-using OceanRasterConversions, Test, Rasters, GibbsSeaWater
+using OceanRasterConversions, Test, Rasters, GibbsSeaWater, StatsBase
 
 include("test_oceanrasterconversions.jl")
 
@@ -85,5 +85,15 @@ end
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoX, (Sₚ = :Sₚ, θ = :θ))
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoY, (Sₚ = :Sₚ, θ = :θ))
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoZ, (Sₚ = :Sₚ, θ = :θ))
+
+end
+
+include("test_oceanvariabledistributions.jl")
+
+@testset "Histograms" begin
+
+    for hf ∈ hist_fields
+        @test getproperty(raster_hist, hf) == getproperty(array_hist, hf)
+    end
 
 end
