@@ -8,7 +8,7 @@ export
     depth_to_pressure, Sₚ_to_Sₐ, θ_to_Θ,
     get_ρ, get_σₚ, get_α, get_β
 
-export area_weights, volume_weights
+export single_variable_weights, area_weights, volume_weights
 
 include("oceanconversions.jl")
 include("oceanvariabledistributions.jl")

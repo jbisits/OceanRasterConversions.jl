@@ -4,9 +4,12 @@ Extend `StatsBase.fit` to accept a `Raster`, an `NTuple` of `Rasters` a `RasterS
 Note that for a `RasterStack` the variables that the `Histogram` is to be produced from need
 to be passed in as `Symbol`s contained in a `Tuple`.
 =#
-StatsBase.fit(::Type{Histogram}, rs::Raster, args...; kwargs...) =
-    StatsBase.fit(Histogram, collect(skipmissing(reshape(read(rs), :)[:])), args...;
-                  kwargs...)
+function StatsBase.fit(::Type{Histogram}, rs::Raster, args...; kwargs...)
+
+    find_nm = @. !ismissing(rs)
+    return StatsBase.fit(Histogram, collect(skipmissing(rs[find_nm])), args...; kwargs...)
+
+end
 function StatsBase.fit(::Type{Histogram}, rs::NTuple{N, Raster}, args...; kwargs...) where{N}
 
     find_nm = @. !ismissing(rs[1]) && !ismissing(rs[2])
@@ -37,6 +40,19 @@ function StatsBase.fit(::Type{Histogram}, series::RasterSeries, vars::Tuple{N, S
 
 end
 """
+    function single_variable_weights(rs::Raster, weights_vec::Vector)
+Return the `Weights` for a `Histogram` with one variable. The function matches the length
+of `weights_vec` to the length of the flattened variable in the `Raster` by finding the
+`missing` entries in the variable and removing them from `weights_vec`.
+"""
+function single_variable_weights(rs::Raster, weights_vec::Vector)
+
+    find_nm = @. !ismissing(rs)
+    return weights(weights_vec[reshape(find_nm, :)])
+
+end
+
+"""
     function area_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111e3)
 Return the `Weights` for a `Histogram` calculated from the area of each grid cell in a
 `Raster` or `RasterStack`. The `Raster` or `RasterStack` must first be sliced over the
@@ -51,30 +67,33 @@ function area_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111e3
 
     rs = typeof(rs) <: RasterStack ? rs[keys(rs)[1]] : rs
 
-    dA =if !hasdim(rs, :Z)
-            lon, lat = lookup(rs, X), lookup(rs, Y)
-            lon_model_resolution = unique(diff(lon))[1]
-            lat_model_resolution = unique(diff(lat))[1]
-            dx = (equator_one_degree * lon_model_resolution) .* ones(length(lon))
-            dy = (equator_one_degree * lat_model_resolution) .* cos.(deg2rad.(lat))
-            dx * dy'
-        elseif !hasdim(rs, :Y)
-            lon, z = lookup(rs, X), lookup(rs, Z)
-            lon_model_resolution = unique(diff(lon))[1]
-            dx = (equator_one_degree * lon_model_resolution) .* ones(length(lon))
-            dz = diff(abs.(z))
-            dz = vcat(dz[1], dz)
-            dx * dz'
-        elseif !hasdim(rs, :X)
-            lat, z = lookup(rs, Y), lookup(rs, Z)
-            lat_model_resolution = unique(diff(lat))[1]
-            dy = (equator_one_degree * lat_model_resolution) .* cos.(deg2rad.(lat))
-            dz = diff(abs.(z))
-            dz = vcat(dz[1], dz)
-            dy * dz'
-        end
+    dA = if !hasdim(rs, :Z)
+             lon, lat = lookup(rs, X), lookup(rs, Y)
+             lon_model_resolution = unique(diff(lon))[1]
+             lat_model_resolution = unique(diff(lat))[1]
+             dx = (equator_one_degree * lon_model_resolution) .* ones(length(lon))
+             dy = (equator_one_degree * lat_model_resolution) .* cos.(deg2rad.(lat))
+             hasdim(rs, Ti) ? repeat(reshape(dx * dy', :), outer = length(lookup(rs, Ti))) :
+                              reshape(dx * dy', :)
+         elseif !hasdim(rs, :Y)
+             lon, z = lookup(rs, X), lookup(rs, Z)
+             lon_model_resolution = unique(diff(lon))[1]
+             dx = (equator_one_degree * lon_model_resolution) .* ones(length(lon))
+             dz = diff(abs.(z))
+             dz = vcat(dz[1], dz)
+             hasdim(rs, Ti) ? repeat(reshape(dx * dz', :), outer = length(lookup(rs, Ti))) :
+                              reshape(dx * dz', :)
+         elseif !hasdim(rs, :X)
+             lat, z = lookup(rs, Y), lookup(rs, Z)
+             lat_model_resolution = unique(diff(lat))[1]
+             dy = (equator_one_degree * lat_model_resolution) .* cos.(deg2rad.(lat))
+             dz = diff(abs.(z))
+             dz = vcat(dz[1], dz)
+             hasdim(rs, Ti) ? repeat(reshape(dy * dz', :), outer = length(lookup(rs, Ti))) :
+                              reshape(dy * dz', :)
+         end
     find_nm = reshape(.!ismissing.(rs), :)[:]
-    dA_vec = reshape(dA, :)[find_nm]
+    dA_vec = dA[find_nm]
 
     return weights(dA_vec)
 
@@ -104,7 +123,9 @@ function volume_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111
         dV[:, :, i] = (dx .* dy') * dz[i]
     end
     find_nm = reshape(.!ismissing.(rs), :)[:]
-    dV_vec = reshape(dV, :)[find_nm]
+    dV_vec = hasdim(rs, Ti) ? repeat(reshape(dV, :), outer = length(lookup(rs, Ti))) :
+                              reshape(dV, :)
+    dV_vec = dV_vec[find_nm]
 
     return weights(dV_vec)
 
