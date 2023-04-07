@@ -2,7 +2,14 @@
 raster_hist = fit(Histogram, rs_stack[:Sₚ])
 raster_array_hist = fit(Histogram, collect(skipmissing(reshape(rs_stack[:Sₚ], :))))
 
-# `RasterSeries` which uses all other methods so should cover code
+# `RasterStack`
+stack_hist = fit(Histogram, rs_stack, (:Sₚ, :θ))
+find_nm_stack = @. !ismissing(rs_stack[:Sₚ]) && !ismissing(rs_stack[:θ])
+Sₚ_vec = collect(skipmissing(rs_stack[:Sₚ][find_nm_stack]))
+θ_vec = collect(skipmissing(rs_stack[:θ][find_nm_stack]))
+stack_array_hist = fit(Histogram, (Sₚ_vec, θ_vec))
+
+# `RasterSeries`
 test_hist_bins = (33:0.025:38, -2:0.1:20)
 series_hist = fit(Histogram, rs_series, (:Sₚ, :θ), test_hist_bins)
 

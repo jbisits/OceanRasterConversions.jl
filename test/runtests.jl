@@ -55,11 +55,11 @@ end
     @test isequal(converted_Sₚ_series, Sₐ_)
     ## `θ_to_Θ`
     @test isequal(converted_θ_series, Θ)
-     ## `get_ρ`
-     @test isequal(converted_ρ_series, ρ)
-     ## `get_σₚ`
-     @test isequal(converted_σₚ_series, σₚ)
-     ## `get_α`
+    ## `get_ρ`
+    @test isequal(converted_ρ_series, ρ)
+    ## `get_σₚ`
+    @test isequal(converted_σₚ_series, σₚ)
+    ## `get_α`
     @test isequal(converted_α_series, α)
     ## `get_β`
     @test isequal(converted_β_series, β)
@@ -94,6 +94,7 @@ include("test_oceanvariabledistributions.jl")
 
     for hf ∈ hist_fields
         @test getproperty(raster_hist, hf) == getproperty(raster_array_hist, hf)
+        @test getproperty(stack_hist, hf)  == getproperty(stack_array_hist, hf)
         @test getproperty(series_hist, hf) == getproperty(series_array_hist, hf)
     end
 
