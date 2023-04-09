@@ -1,57 +1,303 @@
+module RasterHistograms
+
+using Rasters, StatsBase, MakieCore
+import DimensionalData.dim2key
+import Base.show
+
+export RasterLayerHistogram, RasterStackHistogram, RasterSeriesHistogram,
+       area_weights, volume_weights, convert_arguments
+
+"""
+Abstract type for a `RasterHistogram`.
+"""
+abstract type AbstractRasterHistogram end
+
+mutable struct RasterLayerHistogram <: AbstractRasterHistogram
+    layer       :: Symbol
+    dimensions  :: Tuple
+    raster_size :: Tuple
+    histogram   :: AbstractHistogram
+end
+"""
+    function RasterLayerHistogram(::Raster, args...; nbins)
+Construct a `RasterLayerHistogram` from a `Raster`. The flattened `Raster` data, with the
+`missing` values removed, is passed to the `fit(::Histogram)` function from
+[StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) and a
+`RasterLayerHistogram` type is returned.
+"""
+function RasterLayerHistogram(rs::Raster; nbins = nothing)
+
+    layer = name(rs)
+    dimensions = DimensionalData.dim2key(dims(rs))
+    rs_size = size(rs)
+    find_nm = @. !ismissing(rs)
+    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+
+    histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_rs_data) :
+                                   StatsBase.fit(Histogram, flattened_rs_data; nbins)
+
+    return RasterLayerHistogram(layer, dimensions, rs_size, histogram)
+
+end
+function RasterLayerHistogram(rs::Raster, weights::AbstractWeights; nbins = nothing)
+
+    layer = name(rs)
+    dimensions = dims(rs)
+    rs_size = size(rs)
+    find_nm = @. !ismissing(rs)
+    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+
+    histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_rs_data,
+                                                 weights[find_nm]) :
+                                   StatsBase.fit(Histogram, flattened_rs_data,
+                                                 weights[find_nm]; nbins)
+
+    return RasterLayerHistogram(layer, dimensions, rs_size, histogram)
+
+end
+function RasterLayerHistogram(rs::Raster, edges::AbstractVector)
+
+    layer = name(rs)
+    dimensions = dims(rs)
+    rs_size = size(rs)
+    find_nm = @. !ismissing(rs)
+    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+
+    histogram = StatsBase.fit(Histogram, flattened_rs_data, edges)
+
+    return RasterLayerHistogram(layer, dimensions, rs_size, histogram)
+
+end
+function RasterLayerHistogram(rs::Raster, weights::AbstractWeights, edges::AbstractVector)
+
+    layer = name(rs)
+    dimensions = dims(rs)
+    rs_size = size(rs)
+    find_nm = @. !ismissing(rs)
+    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+
+    histogram = StatsBase.fit(Histogram, flattened_rs_data, weights[find_nm], edges)
+
+    return RasterLayerHistogram(layer, dimensions, rs_size, histogram)
+
+end
+
+mutable struct RasterStackHistogram <: AbstractRasterHistogram
+    layers      :: Tuple
+    dimensions  :: Tuple
+    raster_size :: Tuple
+    histogram   :: Histogram
+end
+"""
+    function RasterStackHistogram(::RasterStack, args...; nbins)
+Construct a `RasterStackHistogram` from a `RasterStack`. The resulting `Histogram` is
+N-dimensional, where N is the number of layers. The flattened `Raster` data for each layer,
+with the`missing` values removed, is passed to the `fit(::Histogram)` function from
+[StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) and a
+`RasterStackHistogram` type is returned.
+"""
+function RasterStackHistogram(stack::RasterStack; nbins = nothing)
+
+    layers = names(stack)
+    dimensions = DimensionalData.dim2key(dims(stack))
+    rs_size = size(stack)
+    find_nm = find_stack_non_missing(stack)
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+    histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_stack_data) :
+                                   StatsBase.fit(Histogram, flattened_stack_data; nbins)
+
+    return RasterStackHistogram(layers, dimensions, rs_size, histogram)
+
+end
+function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights; nbins = nothing)
+
+    layers = names(stack)
+    dimensions = DimensionalData.dim2key(dims(stack))
+    rs_size = size(stack)
+    find_nm = find_stack_non_missing(stack)
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+    histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_stack_data,
+                                                 weights[find_nm]) :
+                                   StatsBase.fit(Histogram, flattened_stack_data,
+                                                 weights[find_nm]; nbins)
+
+
+    return RasterStackHistogram(layers, dimensions, rs_size, histogram)
+
+end
+function RasterStackHistogram(stack::RasterStack, edges::NTuple{N, AbstractVector}) where {N}
+
+    layers = names(stack)
+    dimensions = DimensionalData.dim2key(dims(stack))
+    rs_size = size(stack)
+    find_nm = find_stack_non_missing(stack)
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+    histogram = StatsBase.fit(Histogram, flattened_stack_data, edges)
+
+    return RasterStackHistogram(layers, dimensions, rs_size, histogram)
+
+end
+function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights,
+                              edges::NTuple{N, AbstractVector}) where {N}
+
+    layers = names(stack)
+    dimensions = DimensionalData.dim2key(dims(stack))
+    rs_size = size(stack)
+    find_nm = find_stack_non_missing(stack)
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+    histogram = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm], edges)
+
+    return RasterStackHistogram(layers, dimensions, rs_size, histogram)
+
+end
+
+mutable struct RasterSeriesHistogram <: AbstractRasterHistogram
+    layers      :: Tuple
+    dimensions  :: Tuple
+    raster_size :: Tuple
+    histogram   :: Histogram
+end
+"""
+    function RasterSeriesHistogram(::RasterSeries, edges, args; kwargs)
+Construct a `RasterSeriesHistogram` from a `RasterSeries`. Note that to `merge` `Histograms`,
+the bin edges must be the same, so for this constructo the edges must be passed in. This
+constructor assumes that the dimensions are the same across all `RasterStack`s in the
+`RasterSeries`.
+"""
+function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVector}) where {N}
+
+    layers = names(series[1])
+    dimensions = DimensionalData.dim2key(dims(series[1]))
+    rs_size = size(series[1])
+    find_nm = find_stack_non_missing(series[1])
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ series[1])
+
+    histogram = StatsBase.fit(Histogram, flattened_stack_data, edges)
+
+    for stack ∈ series[2:end]
+        find_nm = find_stack_non_missing(stack)
+        flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+        h = StatsBase.fit(Histogram, flattened_stack_data, edges)
+
+        merge!(histogram, h)
+
+    end
+
+    return RasterSeriesHistogram(layers, dimensions, rs_size, histogram)
+
+end
+function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
+                                edges::NTuple{N, AbstractVector}) where {N}
+
+    layers = names(series[1])
+    dimensions = DimensionalData.dim2key(dims(series[1]))
+    rs_size = size(series[1])
+    find_nm = find_stack_non_missing(series[1])
+    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ series[1])
+
+    histogram = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm], edges)
+
+    for stack ∈ series[2:end]
+
+        find_nm = find_stack_non_missing(stack)
+        flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+
+        h = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm], edges)
+
+        merge!(histogram, h)
+
+    end
+
+    return RasterSeriesHistogram(layers, dimensions, rs_size, histogram)
+
+end
+
+Base.show(io::IO, rh::RasterLayerHistogram) =
+    print(io,
+         "\nRasterLayerHistogram for the variable $(rh.layer).",
+         "\nInput Raster dimensions: $(rh.dimensions) ",
+         "with size $(rh.raster_size)",
+         "\n$(rh.histogram)")
+Base.show(io::IO, sh::RasterStackHistogram) =
+    print(io,
+         "\nRasterStackHistogram for the variable $(sh.layers).",
+         "\nInput Raster dimensions: $(sh.dimensions) ",
+         "with size $(sh.raster_size)",
+         "\n$(sh.histogram)")
+Base.show(io::IO, s::RasterSeriesHistogram) =
+    print(io,
+         "\nRasterSeriesHistogram for the variable $(s.layers).",
+         "\nInput Raster dimensions: $(s.dimensions) ",
+         "with size $(s.raster_size)",
+         "\n$(s.histogram)")
+
+"""
+    convert_arguments(P::Type{<:AbstractPlot}, arh::AbstractRasterHistogram)
+Converting method so Makie.jl can plot an `AbstractRasterHistogram`.
+"""
+# MakieCore.convert_arguments(P::Type{<:AbstractPlot}, arh::AbstractRasterHistogram) =
+#     convert_arguments(P, arh.histogram)
+"""
+    function find_stack_non_missing(stack::RasterStack)
+Return a `Raster` of type `Bool` that contains the intersection of the non-`missing` values
+from the
+"""
+function find_stack_non_missing(stack::RasterStack)
+
+    nm_raster_vec = [.!ismissing.(stack[var]) for var ∈ keys(stack)]
+    intersection_non_missings = nm_raster_vec[1]
+    for nm_rs ∈ nm_raster_vec[2:end]
+        intersection_non_missings = intersection_non_missings .&& nm_rs .== 1
+    end
+
+    return intersection_non_missings
+end
 #=
 Extend `StatsBase.fit` to accept a `Raster`, an `NTuple` of `Rasters` a `RasterStack` or a
 `RasterSeries` as inputs and produce an N-dimensional `Histogram`.
 Note that for a `RasterStack` the variables that the `Histogram` is to be produced from need
 to be passed in as `Symbol`s contained in a `Tuple`.
 =#
-function StatsBase.fit(::Type{Histogram}, rs::Raster, args...; kwargs...)
+# function StatsBase.fit(::Type{Histogram}, rs::Raster, args...; kwargs...)
 
-    find_nm = @. !ismissing(rs)
-    return StatsBase.fit(Histogram, collect(skipmissing(rs[find_nm])), args...; kwargs...)
+#     find_nm = @. !ismissing(rs)
+#     return StatsBase.fit(Histogram, collect(skipmissing(rs[find_nm])), args...; kwargs...)
 
-end
-function StatsBase.fit(::Type{Histogram}, rs::NTuple{N, Raster}, args...; kwargs...) where{N}
+# end
+# function StatsBase.fit(::Type{Histogram}, rs::NTuple{N, Raster}, args...; kwargs...) where{N}
 
-    find_nm = @. !ismissing(rs[1]) && !ismissing(rs[2])
-    rs_tuple = Tuple(collect(skipmissing(r[find_nm])) for r ∈ rs)
+#     find_nm = @. !ismissing(rs[1]) && !ismissing(rs[2])
+#     rs_tuple = Tuple(collect(skipmissing(r[find_nm])) for r ∈ rs)
 
-    return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
+#     return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
 
-end
-function StatsBase.fit(::Type{Histogram}, stack::RasterStack, vars::Tuple{N, Symbol},
-                       args...; kwargs...) where{N}
+# end
+# function StatsBase.fit(::Type{Histogram}, stack::RasterStack, vars::Tuple{N, Symbol},
+#                        args...; kwargs...) where{N}
 
-    rs_tuple = Tuple(stack[var] for var ∈ vars)
+#     rs_tuple = Tuple(stack[var] for var ∈ vars)
 
-    return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
+#     return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
 
-end
-function StatsBase.fit(::Type{Histogram}, series::RasterSeries, vars::Tuple{N, Symbol},
-                       args...; kwargs...) where{N}
+# end
+# function StatsBase.fit(::Type{Histogram}, series::RasterSeries, vars::Tuple{N, Symbol},
+#                        args...; kwargs...) where{N}
 
-    rs_tuple = Tuple(series[1][var] for var ∈ vars)
-    merged_hist = fit(Histogram, rs_tuple, args...; kwargs...)
-    for stack ∈ series[2:end]
-        rs_tuple = Tuple(stack[var] for var ∈ vars)
-        merge!(merged_hist, fit(Histogram, rs_tuple, args...; kwargs...))
-    end
+#     rs_tuple = Tuple(series[1][var] for var ∈ vars)
+#     merged_hist = fit(Histogram, rs_tuple, args...; kwargs...)
+#     for stack ∈ series[2:end]
+#         rs_tuple = Tuple(stack[var] for var ∈ vars)
+#         merge!(merged_hist, fit(Histogram, rs_tuple, args...; kwargs...))
+#     end
 
-    return merged_hist
+#     return merged_hist
 
-end
-"""
-    function single_variable_weights(rs::Raster, weights_vec::Vector)
-Return the `Weights` for a `Histogram` with one variable. The function matches the length
-of `weights_vec` to the length of the flattened variable in the `Raster` by finding the
-`missing` entries in the variable and removing them from `weights_vec`.
-"""
-function single_variable_weights(rs::Raster, weights_vec::Vector)
-
-    find_nm = @. !ismissing(rs)
-    return weights(weights_vec[reshape(find_nm, :)])
-
-end
-
+# end
 """
     function area_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111e3)
 Return the `Weights` for a `Histogram` calculated from the area of each grid cell in a
@@ -92,8 +338,6 @@ function area_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111e3
              hasdim(rs, Ti) ? repeat(reshape(dy * dz', :), outer = length(lookup(rs, Ti))) :
                               reshape(dy * dz', :)
          end
-    find_nm = reshape(.!ismissing.(rs), :)[:]
-    dA_vec = dA[find_nm]
 
     return weights(dA_vec)
 
@@ -122,11 +366,11 @@ function volume_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111
     for i ∈ axes(dV, 3)
         dV[:, :, i] = (dx .* dy') * dz[i]
     end
-    find_nm = reshape(.!ismissing.(rs), :)[:]
     dV_vec = hasdim(rs, Ti) ? repeat(reshape(dV, :), outer = length(lookup(rs, Ti))) :
                               reshape(dV, :)
-    dV_vec = dV_vec[find_nm]
 
     return weights(dV_vec)
 
 end
+
+end # module

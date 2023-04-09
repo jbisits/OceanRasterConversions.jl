@@ -1,9 +1,9 @@
 # Single `Raster`
-raster_hist = fit(Histogram, rs_stack[:Sₚ])
+raster_hist = RasterLayerHistogram(rs_stack[:Sₚ])
 raster_array_hist = fit(Histogram, collect(skipmissing(reshape(rs_stack[:Sₚ], :))))
 
 # `RasterStack`
-stack_hist = fit(Histogram, rs_stack, (:Sₚ, :θ))
+stack_hist = RasterStackHistogram(rs_stack)
 find_nm_stack = @. !ismissing(rs_stack[:Sₚ]) && !ismissing(rs_stack[:θ])
 Sₚ_vec = collect(skipmissing(rs_stack[:Sₚ][find_nm_stack]))
 θ_vec = collect(skipmissing(rs_stack[:θ][find_nm_stack]))
@@ -11,7 +11,7 @@ stack_array_hist = fit(Histogram, (Sₚ_vec, θ_vec))
 
 # `RasterSeries`
 test_hist_bins = (33:0.025:38, -2:0.1:20)
-series_hist = fit(Histogram, rs_series, (:Sₚ, :θ), test_hist_bins)
+series_hist = RasterSeriesHistogram(rs_series, test_hist_bins)
 
 # extract all data and compare `rs_hist` to `Histogram` from an `NTuple` of `Array`s
 Sₚ_vec = Float64[]
@@ -28,8 +28,6 @@ hist_fields = (:closed, :edges, :isdensity, :weights)
 
 # Weight functions
 
-test_weights_single = randn(length(reshape(rs_stack[:Sₚ], :)))
-single_var_weights = single_variable_weights(rs_stack[:Sₚ], test_weights_single)
 find_nm_rs_stack = @. !ismissing(rs_stack[:Sₚ])
 find_nm_xy = reshape(find_nm_rs_stack[Z(1)], :)
 find_nm_xz = reshape(find_nm_rs_stack[Y(1)], :)
@@ -52,3 +50,9 @@ dA_yz_test = dA_yz[find_nm_yz]
 # Volume
 dV = repeat(dz[1] * reshape(dx .* dy', :), outer = length(z) * length(ti))
 dV_test = dV[find_nm_rs_stack]
+
+## New method
+# using OceanRasterConversions.RasterHistograms
+# RasterLayerHistogram(rs_stack[:Sₚ])
+# RasterStackHistogram(rs_stack)
+# RasterSeriesHistogram(rs_series, (33:0.01:38, -2:0.1:20))
