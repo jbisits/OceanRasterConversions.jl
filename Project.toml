@@ -8,6 +8,7 @@ DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
 GibbsSeaWater = "9a22fb26-0b63-4589-b28e-8f9d0b5c3d05"
 MakieCore = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
 Rasters = "a3a2b9e3-a471-40c9-b274-f788e487c689"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]

@@ -88,7 +88,6 @@ end
 
 end
 
-using OceanRasterConversions.RasterHistograms
 include("test_oceanvariabledistributions.jl")
 
 @testset "RasterLayerHistogram" begin
