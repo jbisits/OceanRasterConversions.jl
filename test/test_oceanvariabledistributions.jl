@@ -74,9 +74,6 @@ series_array_hist_we = fit(Histogram, (Sₚ_vec, θ_vec), weights(test_series_we
                            test_hist_edges)
 series_array_hists = (series_array_hist_e, series_array_hist_we)
 
-
-findall(RSEH[2].histogram.weights .!== series_array_hists[2].weights)
-RSEH[2].histogram.weights[1, 1] ≈ series_array_hists[2].weights[1, 1]
 hist_fields = (:closed, :edges, :isdensity, :weights)
 
 # Weight functions
@@ -99,4 +96,3 @@ dV = repeat(dz[1] * reshape(dx .* dy', :), outer = length(z) * length(ti))
 # RasterLayerHistogram(rs_stack[:Sₚ])
 # test = RasterStackHistogram(rs_stack)
 # test = RasterSeriesHistogram(rs_series, (33:0.01:38, -2:0.1:20))
-# RasterHistograms.find_stack_non_missing(rs_stack)

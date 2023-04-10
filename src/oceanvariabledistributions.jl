@@ -1,6 +1,7 @@
 module RasterHistograms
 
 using Rasters, StatsBase, MakieCore
+using LinearAlgebra: normalize
 import MakieCore.convert_arguments
 import DimensionalData.dim2key
 import Base.show
