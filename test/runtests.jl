@@ -91,21 +91,52 @@ end
 using OceanRasterConversions.RasterHistograms
 include("test_oceanvariabledistributions.jl")
 
-@testset "Histograms" begin
+@testset "RasterLayerHistogram" begin
 
-    for hf ∈ hist_fields
-        @test getproperty(raster_hist.histogram, hf) == getproperty(raster_array_hist, hf)
-        @test getproperty(stack_hist.histogram, hf)  == getproperty(stack_array_hist, hf)
-        @test getproperty(series_hist.histogram, hf) == getproperty(series_array_hist, hf)
+    for i ∈ eachindex(RLH)
+        for hf ∈ hist_fields
+            @test getproperty(RLH[i].histogram, hf) == getproperty(raster_array_hists[i], hf)
+        end
     end
 
 end
 
-# @testset "Weight functions" begin
+@testset "RasterStackHistogram" begin
 
-#     @test dA_xy_test == area_weights(rs_stack[Z(1)])
-#     @test dA_xz_test == area_weights(rs_stack[Y(1)])
-#     @test dA_yz_test == area_weights(rs_stack[X(1)])
-#     @test dV_test == volume_weights(rs_stack)
+    for i ∈ eachindex(RSH)
+        for hf ∈ hist_fields
+            @test getproperty(RSH[i].histogram, hf)  == getproperty(stack_array_hists[i], hf)
+        end
+    end
 
-# end
+end
+
+@testset "RasterSeriesHistogram" begin
+
+    for i ∈ eachindex(RSEH)
+        for hf ∈ hist_fields
+            if hf == :weights
+                #Floating point errors appear so use approx for weights
+                @test getproperty(RSEH[i].histogram, hf) ≈ getproperty(series_array_hists[i], hf)
+            else
+                @test getproperty(RSEH[i].histogram, hf) == getproperty(series_array_hists[i], hf)
+            end
+        end
+    end
+
+end
+
+@testset "Weight functions" begin
+
+    @test dA_XY == area_weights(rs_stack[Z(1)]).values
+    @test dA_XZ == area_weights(rs_stack[Y(1)]).values
+    @test dA_YZ == area_weights(rs_stack[X(1)]).values
+    @test dV == volume_weights(rs_stack).values
+
+end
+
+@testset "Not exported functions" begin
+
+    @test RasterHistograms.find_stack_non_missing(rs_stack) == find_nm_stack
+
+end
