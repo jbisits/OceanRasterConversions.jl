@@ -1,12 +1,11 @@
 module OceanRasterConversions
 
-using Rasters, GibbsSeaWater
+using Reexport
 
-export
-    convert_ocean_vars,
-    depth_to_pressure, Sₚ_to_Sₐ, θ_to_Θ,
-    get_ρ, get_σₚ, get_α, get_β
+include("oceanvariableconversions.jl")
+include("oceanvariabledistributions.jl")
 
-include("oceanconversions.jl")
+@reexport using OceanRasterConversions.OceanVariableConversions
+@reexport using OceanRasterConversions.RasterHistograms
 
 end #module

@@ -1,4 +1,4 @@
-using OceanRasterConversions, Test, Rasters, GibbsSeaWater
+using OceanRasterConversions, Test, Rasters, GibbsSeaWater, StatsBase
 
 include("test_oceanrasterconversions.jl")
 
@@ -55,11 +55,11 @@ end
     @test isequal(converted_Sₚ_series, Sₐ_)
     ## `θ_to_Θ`
     @test isequal(converted_θ_series, Θ)
-     ## `get_ρ`
-     @test isequal(converted_ρ_series, ρ)
-     ## `get_σₚ`
-     @test isequal(converted_σₚ_series, σₚ)
-     ## `get_α`
+    ## `get_ρ`
+    @test isequal(converted_ρ_series, ρ)
+    ## `get_σₚ`
+    @test isequal(converted_σₚ_series, σₚ)
+    ## `get_α`
     @test isequal(converted_α_series, α)
     ## `get_β`
     @test isequal(converted_β_series, β)
@@ -85,5 +85,57 @@ end
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoX, (Sₚ = :Sₚ, θ = :θ))
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoY, (Sₚ = :Sₚ, θ = :θ))
     @test_throws ArgumentError convert_ocean_vars(rs_stack_NoZ, (Sₚ = :Sₚ, θ = :θ))
+
+end
+
+include("test_oceanvariabledistributions.jl")
+
+@testset "RasterLayerHistogram" begin
+
+    for i ∈ eachindex(RLH)
+        for hf ∈ hist_fields
+            @test getproperty(RLH[i].histogram, hf) == getproperty(raster_array_hists[i], hf)
+        end
+    end
+
+end
+
+@testset "RasterStackHistogram" begin
+
+    for i ∈ eachindex(RSH)
+        for hf ∈ hist_fields
+            @test getproperty(RSH[i].histogram, hf)  == getproperty(stack_array_hists[i], hf)
+        end
+    end
+
+end
+
+@testset "RasterSeriesHistogram" begin
+
+    for i ∈ eachindex(RSEH)
+        for hf ∈ hist_fields
+            if hf == :weights
+                #Floating point errors appear so use approx for weights
+                @test getproperty(RSEH[i].histogram, hf) ≈ getproperty(series_array_hists[i], hf)
+            else
+                @test getproperty(RSEH[i].histogram, hf) == getproperty(series_array_hists[i], hf)
+            end
+        end
+    end
+
+end
+
+@testset "Weight functions" begin
+
+    @test dA_XY == area_weights(rs_stack[Z(1)]).values
+    @test dA_XZ == area_weights(rs_stack[Y(1)]).values
+    @test dA_YZ == area_weights(rs_stack[X(1)]).values
+    @test dV == volume_weights(rs_stack).values
+
+end
+
+@testset "Not exported functions" begin
+
+    @test RasterHistograms.find_stack_non_missing(rs_stack) == find_nm_stack
 
 end

@@ -1,3 +1,12 @@
+module OceanVariableConversions
+
+using Rasters, GibbsSeaWater
+
+export
+    convert_ocean_vars,
+    depth_to_pressure, Sₚ_to_Sₐ, θ_to_Θ,
+    get_ρ, get_σₚ, get_α, get_β
+
 """
     function convert_ocean_vars(raster::RasterStack, var_names::NamedTuple;
                                 ref_pressure = nothing,
@@ -340,3 +349,5 @@ function get_dims(raster::Raster)
     return rs_dims
 
 end
+
+end #module
