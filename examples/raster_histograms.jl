@@ -63,9 +63,8 @@ ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (unweighted)",
           xlabel = "Practical salinity (°C)",
           ylabel = "Potential temperature (psu)")
-ϵ = 1
 hm = heatmap!(ax, stack_hist;
-              colorrange = (ϵ, maximum(stack_hist.histogram.weights)),
+              colorrange = (1, maximum(stack_hist.histogram.weights)),
               lowclip = :white)
 Colorbar(fig[1, 2], hm)
 fig
@@ -79,9 +78,8 @@ ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted)",
           xlabel = "Practical salinity (°C)",
           ylabel = "Potential temperature (psu)")
-ϵ = 1
 hm = heatmap!(ax, weighted_stack_hist;
-              colorrange = (ϵ, maximum(weighted_stack_hist.histogram.weights)),
+              colorrange = (1, maximum(weighted_stack_hist.histogram.weights)),
               lowclip = :white)
 Colorbar(fig[1, 2], hm)
 fig

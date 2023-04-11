@@ -1,4 +1,5 @@
 using Documenter, Literate, OceanRasterConversions
+using Random: seed!
 const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 

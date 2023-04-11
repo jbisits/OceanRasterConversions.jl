@@ -3,16 +3,15 @@
 ## Overview
 
 This module converts and computes ocean varaibles that are saved as `Raster` data structures using [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl).
-[Rasters.jl](https://github.com/rafaqz/Rasters.jl) provides excellent reading, writing and manipulation of geospatial data.
-Typically, the salt and temperature variables from ocean models or observational data are practical salinity and potential temperature so conversions must be to the TEOS-10 standard variables of absolute salinity and conservative temperature to accurately calculate further variables like seawater density.
+Typically, the salt and temperature variables from ocean models or observational data are practical salinity and potential temperature so conversions must be to the [TEOS-10](https://www.teos-10.org/pubs/gsw/html/gsw_front_page.html) standard variables of absolute salinity and conservative temperature to accurately calculate further variables like seawater density.
 
 Further conversions and other water mass transformation procedures will be added in the future.
 
-## module workings
+## Module workings
 
 This module will convert the variables practical salinity and potential temperature into absolute salinity and conservative temperature.
 In doing so a pressure variable is needed, so this is created and returned in the `RasterStack`.
-Lastly a density variable (either in-situ or potential referenced to a user input) is computed and added to the `RasterStack`.
+A density variable (either in-situ or potential referenced to a user input) is computed and added to the `RasterStack`.
 See the example for how the module can be used.
 
 ### Variables

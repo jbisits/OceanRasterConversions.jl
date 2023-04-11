@@ -237,14 +237,14 @@ end
 function Base.show(io::IO, rlh::RasterLayerHistogram)
     println(io, "RasterLayerHistogram for the variable $(rlh.layer)")
     println(io, " ┣━━ Layer dimensions: $(rlh.dimensions) ")
-    println(io, " ┣━━━━━━━━ Layer Size: $(rlh.raster_size)")
-    println(io, " ┗━━━━━━━━━ Histogram: 1-dimensional")
+    println(io, " ┣━━━━━━━━ Layer size: $(rlh.raster_size)")
+    print(io, " ┗━━━━━━━━━ Histogram: 1-dimensional")
 end
 function Base.show(io::IO, rsh::RasterStackHistogram)
     println(io, "RasterStackHistogram for the variables $(rsh.layers)")
-    println(io, " ┣━━━ Data dimensions: $(rsh.dimensions)")
-    println(io, " ┣━━━━━━━━━ Data Size: $(rsh.raster_size)")
-    println(io, " ┗━━━━━━━━━ Histogram: $(length(rsh.layers))-dimensional")
+    println(io, " ┣━━ Stack dimensions: $(rsh.dimensions)")
+    println(io, " ┣━━ Stack layer size: $(rsh.raster_size)")
+    print(io, " ┗━━━━━━━━━ Histogram: $(length(rsh.layers))-dimensional")
 end
 function Base.show(io::IO, rseh::RasterSeriesHistogram)
     println(io, "RasterSeriesHistogram for the variables $(rseh.layers)")
@@ -252,7 +252,7 @@ function Base.show(io::IO, rseh::RasterSeriesHistogram)
     println(io, " ┣━━━━━━━━━━━━━━━━━━━━━━━ Series length: $(rseh.series_length)")
     println(io, " ┣━━ Data Dimensions of series elements: $(rseh.dimensions) ")
     println(io, " ┣━━━━━━━━ Data size of series elements: $(rseh.raster_size)")
-    println(io, " ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━ Histogram: $(length(rseh.layers))-dimensional")
+    print(io, " ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━ Histogram: $(length(rseh.layers))-dimensional")
 end
 
 """
