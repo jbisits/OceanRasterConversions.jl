@@ -15,6 +15,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 DimensionalData = "=0.24.7"
 GibbsSeaWater = "^0.1.2"
+MakieCore = "0.6"
 Rasters = "^0.5.0"
 Reexport = "1"
 julia = "1.6"
