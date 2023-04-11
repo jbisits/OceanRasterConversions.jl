@@ -3,11 +3,11 @@
 ## OceanVariableConversions
 
 ```@autodocs
-Module = [OceanRasterConversions]
+Modules = [OceanRasterConversions]
 ```
 
 ## RasterHistograms
 
 ```@autodocs
-Module = [RasterHistograms]
+Modules = [RasterHistograms]
 ```
