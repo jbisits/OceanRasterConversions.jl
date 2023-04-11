@@ -5,9 +5,12 @@
 [![Build Status](https://github.com/jbisits/OceanRasterConversions.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jbisits/OceanRasterConversions.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/jbisits/OceanRasterConversions.jl/branch/main/graph/badge.svg?token=XEAWB8IHFV)](https://codecov.io/gh/jbisits/OceanRasterConversions.jl)
 
-This package converts and computes ocean variables that are saved as `Raster` data structures using [GibbsSeaWater.jl](https://github.com/TEOS-10/GibbsSeaWater.jl).
-[Rasters.jl](https://github.com/rafaqz/Rasters.jl) provides excellent reading, writing and manipulation of geospatial data.
-Typically, the salt and temperature variables from ocean models or observational data are practical salinity and potential temperature so conversions must be to the TEOS-10 standard variables of absolute salinity and conservative temperature to accurately calculate further variables like seawater density.
+[Rasters.jl](https://rafaqz.github.io/Rasters.jl/dev/) provides excellent methods for reading, analysing and plotting for geospatial data.
+This package contains modules that are useful for analysing oceanic data (either model output or gridded observations) and is designed to be used in conjunction with Rasters.jl.
+The modules are:
+
+- `OceanVariableConversions`, conversion and computation (using [TEOS-10](https://www.teos-10.org/pubs/gsw/html/gsw_front_page.html)) of ocean variables that are `Raster` data structures; and
+- `RasterHistograms`, empirical distribution fitting for `Raster` data structures.
 
 ## Using the package
 
@@ -27,4 +30,10 @@ julia> using Rasters, OceanRasterConversions
 ```
 
 into the repl.
-To see a list of the exported functions from OceanRasterConversions.jl see the [documentation](https://jbisits.github.io/OceanRasterConversions.jl/dev/#Functions-exported-from-OceanRasterConversions).
+The modules can also be loaded individually, to avoid loading in unnecessary funcitons into the workspace, by
+
+```julia
+julia> using OceanRasterConversions.RasterHistograms
+```
+
+and similarly for `OceanRasterConversions.OceanVariableConversions`.

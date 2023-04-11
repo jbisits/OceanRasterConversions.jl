@@ -12,3 +12,4 @@ If there are any bugs and/or feature request please raise an [issue](https://git
 !!! info
     This package assumes that the `missingval = missing` in the `Raster`, `RasterStack` or `RasterSeries`.
     By default `missingval = missing` in Rasters.jl, so as long as the `missingval` has not been changed the modules in this package will work.
+    
