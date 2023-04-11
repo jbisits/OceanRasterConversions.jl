@@ -1,6 +1,6 @@
 module RasterHistograms
 
-using Rasters, StatsBase, MakieCore
+using Rasters, StatsBase, MakieCore, DocStringExtensions
 import MakieCore.convert_arguments
 import DimensionalData.dim2key
 import Base.show

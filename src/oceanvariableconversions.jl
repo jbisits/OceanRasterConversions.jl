@@ -1,6 +1,6 @@
 module OceanVariableConversions
 
-using Rasters, GibbsSeaWater
+using Rasters, GibbsSeaWater, DocStringExtensions
 
 export
     convert_ocean_vars,
