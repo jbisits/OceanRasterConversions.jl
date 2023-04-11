@@ -9,9 +9,7 @@ import Base.show
 export RasterLayerHistogram, RasterStackHistogram, RasterSeriesHistogram,
        area_weights, volume_weights, convert_arguments
 
-"""
-Abstract type for a `RasterHistogram`.
-"""
+"Abstract supertype for a `RasterHistogram`."
 abstract type AbstractRasterHistogram end
 
 mutable struct RasterLayerHistogram <: AbstractRasterHistogram

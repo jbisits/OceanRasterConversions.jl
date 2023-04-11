@@ -62,6 +62,7 @@ DocTestSetup = nothing
 ## Functions exported from `RasterHistograms`
 
 ```@docs
+AbstractRasterHistogram
 RasterLayerHistogram
 RasterStackHistogram
 RasterSeriesHistogram
