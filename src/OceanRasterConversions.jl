@@ -1,6 +1,6 @@
 module OceanRasterConversions
 
-using Reexport
+using Reexport, DocStringExtensions
 
 include("oceanvariableconversions.jl")
 include("oceanvariabledistributions.jl")
