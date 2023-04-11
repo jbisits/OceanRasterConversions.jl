@@ -7,12 +7,13 @@ For a single `Raster` (i.e. one variable)
 ```@meta
 DocTestSetup = quote
     using Rasters, OceanRasterConversions.RasterHistograms
-    using Random: seed!
 end
 ```
 
-```jldoctest; setup = :(seed!(1234))
-julia> rs = Raster(randn(10, 10), (X(1:10), Ti(1:10)); name = :dummy_variable);
+```jldoctest
+julia> dummy_data = repeat(1:10; outer = (1, 10));
+
+julia> rs = Raster(dummy_data, (X(1:10), Ti(1:10)); name = :dummy_variable);
 
 julia> rs_hist = RasterLayerHistogram(rs)
 RasterLayerHistogram for the variable dummy_variable
@@ -23,8 +24,8 @@ RasterLayerHistogram for the variable dummy_variable
 julia> rs_hist.histogram
 StatsBase.Histogram{Int64, 1, Tuple{StepRangeLen{Float64, Base.TwicePrecision{Float64}, Base.TwicePrecision{Float64}, Int64}}}
 edges:
-  -2.0:1.0:3.0
-weights: [17, 33, 31, 15, 4]
+  0.0:2.0:12.0
+weights: [10, 20, 20, 20, 20, 10]
 closed: left
 isdensity: false
 
