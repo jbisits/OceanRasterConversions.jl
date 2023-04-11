@@ -47,7 +47,7 @@ fig
 # ## Real world data example
 # This package is mainly concerned with ocean variables, so we now look at temperature and
 # salinity distributions from the same ECCO temperature and salinity data we look at in
-# the [converting ocean variables]() example.
+# the [converting ocean variables](@ref converting_variables_example) example.
 # Here we also show how to the module works for 2-dimensional `Histograms` though it can be
 # generalised to N dimensions depending on the number of variables one is looking at.
 # ### Downloading the data

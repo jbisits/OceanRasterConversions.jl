@@ -18,10 +18,14 @@ module_pages = [
     "OceanVariableConversions" => "modules/OceanVariableConversions.md",
     "RasterHistograms"         => "modules/RasterHistograms.md"
 ]
+library_pages = [
+    "Function index" => "library/function_index.md"
+]
 pages = [
     "Home" => "index.md",
+    "Modules" => module_pages,
     "Examples" => example_pages,
-    "Modules" => module_pages
+    "Library" => library_pages
 ]
 
 makedocs(

@@ -1,4 +1,4 @@
-# RasterHistograms
+# [RasterHistograms](@id raster_hist_module)
 
 This module uses [empirical estimation from StatsBase.jl](https://juliastats.org/StatsBase.jl/stable/empirical/) to fit `Histogram`s to `Raster`, `RasterStack` or `RasterSeries` data structures.
 The functions take in the `Raster` data structure, as well as arguments for the `Histogram` (e.g. weights, edges).
