@@ -1,4 +1,4 @@
-# # Converting the practical salinity and potential temperature from ECCOv4r4 model output.
+# # [Converting the practical salinity and potential temperature from ECCOv4r4 model output.](@id converting_variables_example)
 # First, add the required dependencies
 using Rasters, Plots, Downloads
 using OceanRasterConversions.OceanVariableConversions

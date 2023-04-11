@@ -56,9 +56,6 @@ stack = RasterStack(data, (X(lons), Y(lats), Z(z)))
 
 This is equivalent to a two dimensional `RasterStack` at sea-surface height (z = 0).
 
-Currently the only dimension names that are supported are `X`, `Y`, `Z`, and `Ti`.
-Allowing for user specified dimensions has not yet been implemented.
-
 At this stage it is also not possible to slice a `Raster` then convert it.
 This is something that will be implemented at some stage.
 For details on why this is the case see [this issue](https://github.com/jbisits/OceanRasterConversions.jl/issues/27).
@@ -66,13 +63,7 @@ As the example shows it is straightforward to first convert a `Raster` and then 
 
 ## Functions exported from `OceanVariableConversions`
 
-```@docs
-convert_ocean_vars
-depth_to_pressure
-Sₚ_to_Sₐ
-θ_to_Θ
-get_ρ
-get_σₚ
-get_α
-get_β
+```@autodocs
+Modules = [OceanVariableConversions]
+Private = false
 ```

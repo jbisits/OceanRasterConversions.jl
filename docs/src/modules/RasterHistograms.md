@@ -61,11 +61,7 @@ DocTestSetup = nothing
 
 ## Functions exported from `RasterHistograms`
 
-```@docs
-AbstractRasterHistogram
-RasterLayerHistogram
-RasterStackHistogram
-RasterSeriesHistogram
-area_weights
-volume_weights
+```@autodocs
+Modules = [RasterHistograms]
+Private = false
 ```

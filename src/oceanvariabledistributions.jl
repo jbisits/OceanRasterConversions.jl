@@ -1,7 +1,6 @@
 module RasterHistograms
 
 using Rasters, StatsBase, MakieCore
-using LinearAlgebra: normalize
 import MakieCore.convert_arguments
 import DimensionalData.dim2key
 import Base.show
@@ -12,11 +11,22 @@ export RasterLayerHistogram, RasterStackHistogram, RasterSeriesHistogram,
 "Abstract supertype for a `RasterHistogram`."
 abstract type AbstractRasterHistogram end
 
+"""
+    mutable struct RasterLayerHistogram <: AbstractRasterHistogram
+A `RasterLayerHistogram`. The `struct` is `mutable` so that the `histogram` field can be
+updated using the `normalize` (or otherwise) function.
+
+$(TYPEDFIELDS)
+"""
 mutable struct RasterLayerHistogram <: AbstractRasterHistogram
-    layer       :: Symbol
-    dimensions  :: Tuple
-    raster_size :: Tuple
-    histogram   :: AbstractHistogram
+    "The layer (variable) from the `Raster`"
+        layer       :: Symbol
+    "The dimensions of the `Raster`"
+        dimensions  :: Tuple
+    "The size of the `Raster`"
+        raster_size :: Tuple
+    "The 1-dimensional histogram fitted to the `Raster` layer data"
+        histogram   :: AbstractHistogram
 end
 """
     function RasterLayerHistogram(::Raster, args...; nbins)
@@ -85,11 +95,22 @@ function RasterLayerHistogram(rs::Raster, weights::AbstractWeights, edges::Abstr
 
 end
 
+"""
+    mutable struct RasterStackHistogram <: AbstractRasterHistogram
+A `RasterStackHistogram`. The `struct` is `mutable` so that the `histogram` field can be
+updated using the `normalize` (or otherwise) function.
+
+    $(TYPEDFIELDS)
+"""
 mutable struct RasterStackHistogram <: AbstractRasterHistogram
-    layers      :: Tuple
-    dimensions  :: Tuple
-    raster_size :: Tuple
-    histogram   :: Histogram
+    "The layers (variables) from the `RasterStack` used to fit the `Histogram`"
+        layers      :: Tuple
+    "The dimensions of the `RasterStack`"
+        dimensions  :: Tuple
+    "The size of the `RasterStack` layers"
+        raster_size :: Tuple
+    "The N-dimensional `Histogram` fitted to the N layers from `RasterStack`"
+        histogram   :: Histogram
 end
 """
     function RasterStackHistogram(::RasterStack, args...; nbins)
@@ -159,19 +180,31 @@ function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights,
     return RasterStackHistogram(layers, dimensions, rs_size, histogram)
 
 end
+"""
+    mutable struct RasterSeriesHistogram <: AbstractRasterHistogram
+A `RasterSeriesHistogram`. The `struct` is `mutable` so that the `histogram` field can be
+updated using the `normalize` (or otherwise) function.
 
+$(TYPEDFIELDS)
+"""
 mutable struct RasterSeriesHistogram <: AbstractRasterHistogram
-    layers           :: Tuple
-    series_dimension :: Symbol
-    series_length    :: Int64
-    dimensions       :: Tuple
-    raster_size      :: Tuple
-    histogram        :: Histogram
+    "The layers (variables) from the `RasterSeries` used to fit the `Histogram`"
+        layers           :: Tuple
+    "The dimension of the `RasterSeries` (usually this will be time)"
+        series_dimension :: Symbol
+    "The length of the `RasterSeries"
+        series_length    :: Int64
+    "The dimensions of the elements (either a `Raster` or `RasterStack`) of the `RasterSeries`"
+        dimensions       :: Tuple
+    "The size of the elements (either a `Raster` or `RasterStack`) of the `RasterSeries`"
+        raster_size      :: Tuple
+    "The N-dimensional `Histogram` fitted to the N layers from `RasterSeries`"
+        histogram        :: Histogram
 end
 """
     function RasterSeriesHistogram(::RasterSeries, edges, args; kwargs)
-Construct a `RasterSeriesHistogram` from a `RasterSeries`. Note that to `merge` `Histograms`,
-the bin edges must be the same, so for this constructo the edges must be passed in. This
+Construct a `RasterSeriesHistogram` from a `RasterSeries`. Note that to `merge` `Histograms`
+the bin edges must be the same, so for this constructor the edges must be passed in. This
 constructor assumes that the dimensions are the same across all `RasterStack`s in the
 `RasterSeries`.
 """
@@ -236,13 +269,13 @@ function Base.show(io::IO, rlh::RasterLayerHistogram)
     println(io, "RasterLayerHistogram for the variable $(rlh.layer)")
     println(io, " ┣━━ Layer dimensions: $(rlh.dimensions) ")
     println(io, " ┣━━━━━━━━ Layer size: $(rlh.raster_size)")
-    print(io, " ┗━━━━━━━━━ Histogram: 1-dimensional")
+    print(io,   " ┗━━━━━━━━━ Histogram: 1-dimensional")
 end
 function Base.show(io::IO, rsh::RasterStackHistogram)
     println(io, "RasterStackHistogram for the variables $(rsh.layers)")
     println(io, " ┣━━ Stack dimensions: $(rsh.dimensions)")
     println(io, " ┣━━ Stack layer size: $(rsh.raster_size)")
-    print(io, " ┗━━━━━━━━━ Histogram: $(length(rsh.layers))-dimensional")
+    print(io,   " ┗━━━━━━━━━ Histogram: $(length(rsh.layers))-dimensional")
 end
 function Base.show(io::IO, rseh::RasterSeriesHistogram)
     println(io, "RasterSeriesHistogram for the variables $(rseh.layers)")
@@ -250,7 +283,7 @@ function Base.show(io::IO, rseh::RasterSeriesHistogram)
     println(io, " ┣━━━━━━━━━━━━━━━━━━━━━━━ Series length: $(rseh.series_length)")
     println(io, " ┣━━ Data Dimensions of series elements: $(rseh.dimensions) ")
     println(io, " ┣━━━━━━━━ Data size of series elements: $(rseh.raster_size)")
-    print(io, " ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━ Histogram: $(length(rseh.layers))-dimensional")
+    print(io,   " ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━ Histogram: $(length(rseh.layers))-dimensional")
 end
 
 """

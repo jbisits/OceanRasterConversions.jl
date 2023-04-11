@@ -1,4 +1,4 @@
-# # Raster Histograms
+# # [Raster Histograms](@id raster_hist_example)
 # First, add the required depedencies
 using Rasters, Downloads, CairoMakie
 # and the `RasterHistograms` module from OceanRasterConversions.jl package
