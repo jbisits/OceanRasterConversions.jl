@@ -17,6 +17,7 @@ DimensionalData = "=0.24.7, 0.24"
 GibbsSeaWater = "^0.1.2"
 MakieCore = "0.6"
 Rasters = "^0.5.0"
+StatsBase = "0.33"
 Reexport = "1"
 julia = "1.6"
 
