@@ -29,11 +29,12 @@ Construct a `RasterLayerHistogram` from a `Raster`. The flattened `Raster` data,
 """
 function RasterLayerHistogram(rs::Raster; nbins = nothing)
 
+    rs = read(rs)
     layer = name(rs)
     dimensions = DimensionalData.dim2key(dims(rs))
     rs_size = size(rs)
     find_nm = @. !ismissing(rs)
-    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+    flattened_rs_data = collect(skipmissing(read(rs)[find_nm]))
 
     histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_rs_data) :
                                    StatsBase.fit(Histogram, flattened_rs_data; nbins)
@@ -48,7 +49,7 @@ function RasterLayerHistogram(rs::Raster, weights::AbstractWeights; nbins = noth
     rs_size = size(rs)
     find_nm = @. !ismissing(rs)
     find_nm_vec = reshape(find_nm, :)
-    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+    flattened_rs_data = collect(skipmissing(read(rs)[find_nm]))
 
     histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_rs_data,
                                                  weights[find_nm_vec]) :
@@ -64,7 +65,7 @@ function RasterLayerHistogram(rs::Raster, edges::AbstractVector)
     dimensions = DimensionalData.dim2key(dims(rs))
     rs_size = size(rs)
     find_nm = @. !ismissing(rs)
-    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+    flattened_rs_data = collect(skipmissing(read(rs)[find_nm]))
 
     histogram = StatsBase.fit(Histogram, flattened_rs_data, edges)
 
@@ -78,7 +79,7 @@ function RasterLayerHistogram(rs::Raster, weights::AbstractWeights, edges::Abstr
     rs_size = size(rs)
     find_nm = @. !ismissing(rs)
     find_nm_vec = reshape(find_nm, :)
-    flattened_rs_data = collect(skipmissing(rs[find_nm]))
+    flattened_rs_data = collect(skipmissing(read(rs)[find_nm]))
 
     histogram = StatsBase.fit(Histogram, flattened_rs_data, weights[find_nm_vec], edges)
 
@@ -106,7 +107,7 @@ function RasterStackHistogram(stack::RasterStack; nbins = nothing)
     dimensions = DimensionalData.dim2key(dims(stack))
     rs_size = size(stack)
     find_nm = find_stack_non_missing(stack)
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ stack)
 
     histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_stack_data) :
                                    StatsBase.fit(Histogram, flattened_stack_data; nbins)
@@ -121,7 +122,7 @@ function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights; nbin
     rs_size = size(stack)
     find_nm = find_stack_non_missing(stack)
     find_nm_vec = reshape(find_nm, :)
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ stack)
 
     histogram = isnothing(nbins) ? StatsBase.fit(Histogram, flattened_stack_data,
                                                  weights[find_nm_vec]) :
@@ -138,7 +139,7 @@ function RasterStackHistogram(stack::RasterStack, edges::NTuple{N, AbstractVecto
     dimensions = DimensionalData.dim2key(dims(stack))
     rs_size = size(stack)
     find_nm = find_stack_non_missing(stack)
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ stack)
 
     histogram = StatsBase.fit(Histogram, flattened_stack_data, edges)
 
@@ -153,7 +154,7 @@ function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights,
     rs_size = size(stack)
     find_nm = find_stack_non_missing(stack)
     find_nm_vec = reshape(find_nm, :)
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ stack)
 
     histogram = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm_vec], edges)
 
@@ -184,13 +185,13 @@ function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVe
     dimensions = DimensionalData.dim2key(dims(series[1]))
     rs_size = size(series[1])
     find_nm = find_stack_non_missing(series[1])
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ series[1])
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ series[1])
 
     histogram = StatsBase.fit(Histogram, flattened_stack_data, edges)
 
     for stack ∈ series[2:end]
         find_nm = find_stack_non_missing(stack)
-        flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ stack)
+        flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ stack)
 
         h = StatsBase.fit(Histogram, flattened_stack_data, edges)
 
@@ -212,7 +213,7 @@ function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
     rs_size = size(series[1])
     find_nm = find_stack_non_missing(series[1])
     find_nm_vec = reshape(find_nm, :)
-    flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm])) for layer ∈ series[1])
+    flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm])) for layer ∈ series[1])
 
     histogram = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm_vec], edges)
 
@@ -220,7 +221,7 @@ function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
 
         find_nm_ = find_stack_non_missing(stack)
         find_nm_vec_ = reshape(find_nm_, :)
-        flattened_stack_data = Tuple(collect(skipmissing(layer[find_nm_])) for layer ∈ stack)
+        flattened_stack_data = Tuple(collect(skipmissing(read(layer)[find_nm_])) for layer ∈ stack)
 
         h = StatsBase.fit(Histogram, flattened_stack_data, weights[find_nm_vec_], edges)
 
@@ -235,23 +236,23 @@ end
 
 function Base.show(io::IO, rlh::RasterLayerHistogram)
     println(io, "RasterLayerHistogram for the variable $(rlh.layer)")
-    println(io, " |-- Layer dimensions: $(rlh.dimensions) ")
-    println(io, " |-------- Layer Size: $(rlh.raster_size)")
-    println(io, " |-------- Histogram: 1-dimensional")
+    println(io, " ┣━━ Layer dimensions: $(rlh.dimensions) ")
+    println(io, " ┣━━━━━━━━ Layer Size: $(rlh.raster_size)")
+    println(io, " ┗━━━━━━━━━ Histogram: 1-dimensional")
 end
 function Base.show(io::IO, rsh::RasterStackHistogram)
     println(io, "RasterStackHistogram for the variables $(rsh.layers)")
-    println(io, " |-- Data dimensions: $(rsh.dimensions)")
-    println(io, " |-------- Data Size: $(rsh.raster_size)")
-    println(io, " |-------- Histogram: $(length(rsh.layers))-dimensional")
+    println(io, " ┣━━━ Data dimensions: $(rsh.dimensions)")
+    println(io, " ┣━━━━━━━━━ Data Size: $(rsh.raster_size)")
+    println(io, " ┗━━━━━━━━━ Histogram: $(length(rsh.layers))-dimensional")
 end
 function Base.show(io::IO, rseh::RasterSeriesHistogram)
     println(io, "RasterSeriesHistogram for the variables $(rseh.layers)")
-    println(io, " |-------------------- Series dimension: $(rseh.series_dimension)")
-    println(io, " |----------------------- Series length: $(rseh.series_length)")
-    println(io, " |-- Data Dimensions of series elements: $(rseh.dimensions) ")
-    println(io, " |-------- Data size of series elements: $(rseh.raster_size)")
-    println(io, " |--------------------------- Histogram: $(length(rseh.layers))-dimensional")
+    println(io, " ┣━━━━━━━━━━━━━━━━━━━━ Series dimension: $(rseh.series_dimension)")
+    println(io, " ┣━━━━━━━━━━━━━━━━━━━━━━━ Series length: $(rseh.series_length)")
+    println(io, " ┣━━ Data Dimensions of series elements: $(rseh.dimensions) ")
+    println(io, " ┣━━━━━━━━ Data size of series elements: $(rseh.raster_size)")
+    println(io, " ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━ Histogram: $(length(rseh.layers))-dimensional")
 end
 
 """
@@ -259,7 +260,7 @@ end
 Converting method so Makie.jl can plot an `AbstractRasterHistogram`.
 """
 MakieCore.convert_arguments(P::Type{<:MakieCore.AbstractPlot},
-                            arh::Type{<:AbstractRasterHistogram}) =
+                            arh::AbstractRasterHistogram) =
                             convert_arguments(P, arh.histogram)
 """
     function find_stack_non_missing(stack::RasterStack)
@@ -268,7 +269,7 @@ from the layers of a `RasterStack`.
 """
 function find_stack_non_missing(stack::RasterStack)
 
-    nm_raster_vec = [.!ismissing.(stack[var]) for var ∈ keys(stack)]
+    nm_raster_vec = [.!ismissing.(read(stack)[var]) for var ∈ keys(stack)]
     intersection_non_missings = nm_raster_vec[1]
     for nm_rs ∈ nm_raster_vec[2:end]
         intersection_non_missings = intersection_non_missings .&& nm_rs .== 1
@@ -276,47 +277,7 @@ function find_stack_non_missing(stack::RasterStack)
 
     return intersection_non_missings
 end
-#=
-Extend `StatsBase.fit` to accept a `Raster`, an `NTuple` of `Rasters` a `RasterStack` or a
-`RasterSeries` as inputs and produce an N-dimensional `Histogram`.
-Note that for a `RasterStack` the variables that the `Histogram` is to be produced from need
-to be passed in as `Symbol`s contained in a `Tuple`.
-=#
-# function StatsBase.fit(::Type{Histogram}, rs::Raster, args...; kwargs...)
 
-#     find_nm = @. !ismissing(rs)
-#     return StatsBase.fit(Histogram, collect(skipmissing(rs[find_nm])), args...; kwargs...)
-
-# end
-# function StatsBase.fit(::Type{Histogram}, rs::NTuple{N, Raster}, args...; kwargs...) where{N}
-
-#     find_nm = @. !ismissing(rs[1]) && !ismissing(rs[2])
-#     rs_tuple = Tuple(collect(skipmissing(r[find_nm])) for r ∈ rs)
-
-#     return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
-
-# end
-# function StatsBase.fit(::Type{Histogram}, stack::RasterStack, vars::Tuple{N, Symbol},
-#                        args...; kwargs...) where{N}
-
-#     rs_tuple = Tuple(stack[var] for var ∈ vars)
-
-#     return StatsBase.fit(Histogram, rs_tuple, args...; kwargs...)
-
-# end
-# function StatsBase.fit(::Type{Histogram}, series::RasterSeries, vars::Tuple{N, Symbol},
-#                        args...; kwargs...) where{N}
-
-#     rs_tuple = Tuple(series[1][var] for var ∈ vars)
-#     merged_hist = fit(Histogram, rs_tuple, args...; kwargs...)
-#     for stack ∈ series[2:end]
-#         rs_tuple = Tuple(stack[var] for var ∈ vars)
-#         merge!(merged_hist, fit(Histogram, rs_tuple, args...; kwargs...))
-#     end
-
-#     return merged_hist
-
-# end
 """
     function area_weights(rs::Union{Raster, RasterStack}; equator_one_degree = 111e3)
 Return the `Weights` for a `Histogram` calculated from the area of each grid cell in a
