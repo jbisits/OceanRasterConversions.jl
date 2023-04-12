@@ -61,9 +61,4 @@ This is something that will be implemented at some stage.
 For details on why this is the case see [this issue](https://github.com/jbisits/OceanRasterConversions.jl/issues/27).
 As the example shows it is straightforward to first convert a `Raster` and then slice it.
 
-## Functions exported from `OceanVariableConversions`
-
-```@autodocs
-Modules = [OceanVariableConversions]
-Private = false
-```
+For a full list of the functions in this module see the [function index](@ref ovc_func_index)

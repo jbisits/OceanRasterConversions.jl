@@ -59,9 +59,4 @@ RasterStackHistogram for the variables (:v1, :v2, :v3)
 DocTestSetup = nothing
 ```
 
-## Functions exported from `RasterHistograms`
-
-```@autodocs
-Modules = [RasterHistograms]
-Private = false
-```
+For a full list of the functions in this module see the [function index](@ref rh_func_index).
