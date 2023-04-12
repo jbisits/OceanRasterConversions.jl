@@ -75,6 +75,7 @@ series_array_hist_we = fit(Histogram, (Sₚ_vec, θ_vec), weights(test_series_we
 series_array_hists = (series_array_hist_e, series_array_hist_we)
 
 hist_fields = (:closed, :edges, :isdensity, :weights)
+modes = (:none, :pdf, :probability, :density)
 
 # Weight functions
 
@@ -96,3 +97,4 @@ dV = repeat(dz[1] * reshape(dx .* dy', :), outer = length(z) * length(ti))
 # RasterLayerHistogram(rs_stack[:Sₚ])
 # test = RasterStackHistogram(rs_stack)
 # test = RasterSeriesHistogram(rs_series, (33:0.01:38, -2:0.1:20))
+normalize(raster_array_hists[1]; mode = :none).weights
