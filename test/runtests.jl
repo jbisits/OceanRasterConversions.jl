@@ -1,4 +1,5 @@
 using OceanRasterConversions, Test, Rasters, GibbsSeaWater, StatsBase
+using LinearAlgebra: normalize, normalize!
 
 include("test_oceanrasterconversions.jl")
 
@@ -123,6 +124,24 @@ end
         end
     end
 
+end
+
+@testset "normalize!" begin
+
+    for (i, mode) ∈ enumerate(modes)
+        normalize!(RLH[i]; mode)
+        normalize!(RSH[i]; mode)
+        @test getproperty(RLH[i].histogram, :weights) ≈
+                getproperty(normalize(raster_array_hists[i]; mode), :weights)
+        @test getproperty(RSH[i].histogram, :weights) ≈
+              getproperty(normalize(stack_array_hists[i]; mode), :weights)
+        if i ≤ 2
+            normalize!(RSEH[i]; mode)
+            @test getproperty(RSEH[i].histogram, :weights) ≈
+                    getproperty(normalize(series_array_hists[i]; mode), :weights)
+        end
+
+    end
 end
 
 @testset "Weight functions" begin

@@ -1,12 +1,13 @@
 module RasterHistograms
 
-using Rasters, StatsBase, MakieCore, DocStringExtensions
+using Rasters, StatsBase, MakieCore, LinearAlgebra, DocStringExtensions
+import LinearAlgebra.normalize!
 import MakieCore.convert_arguments
 import DimensionalData.dim2key
 import Base.show
 
 export RasterLayerHistogram, RasterStackHistogram, RasterSeriesHistogram,
-       area_weights, volume_weights, convert_arguments
+       area_weights, volume_weights, convert_arguments, normalize!
 
 "Abstract supertype for a `RasterHistogram`."
 abstract type AbstractRasterHistogram end
@@ -264,7 +265,21 @@ function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
                                  dimensions, rs_size, histogram)
 
 end
+"""
+    function find_stack_non_missing(stack::RasterStack)
+Return a `Raster` of type `Bool` that contains the intersection of the non-`missing` values
+from the layers of a `RasterStack`.
+"""
+function find_stack_non_missing(stack::RasterStack)
 
+    nm_raster_vec = [.!ismissing.(stack[var]) for var ∈ keys(stack)]
+    intersection_non_missings = nm_raster_vec[1]
+    for nm_rs ∈ nm_raster_vec[2:end]
+        intersection_non_missings = intersection_non_missings .&& nm_rs .== 1
+    end
+
+    return intersection_non_missings
+end
 function Base.show(io::IO, rlh::RasterLayerHistogram)
     println(io, "RasterLayerHistogram for the variable $(rlh.layer)")
     println(io, " ┣━━ Layer dimensions: $(rlh.dimensions) ")
@@ -287,26 +302,24 @@ function Base.show(io::IO, rseh::RasterSeriesHistogram)
 end
 
 """
-    convert_arguments(P::Type{<:AbstractPlot}, arh::Type{<:AbstractRasterHistogram}
+    function convert_arguments(P::Type{<:AbstractPlot}, arh::Type{<:AbstractRasterHistogram}
 Converting method so Makie.jl can plot an `AbstractRasterHistogram`.
 """
 MakieCore.convert_arguments(P::Type{<:MakieCore.AbstractPlot},
                             arh::AbstractRasterHistogram) =
                             convert_arguments(P, arh.histogram)
 """
-    function find_stack_non_missing(stack::RasterStack)
-Return a `Raster` of type `Bool` that contains the intersection of the non-`missing` values
-from the layers of a `RasterStack`.
+    function normalize!(arh::AbstractRasterHistogram; mode::Symbol = :pdf)
+Normalize the `Histogram` in the `AbstractRasterHistogram` according the desired `mode`.
+See the [StatsBase.jl docs](https://juliastats.org/StatsBase.jl/latest/empirical/#LinearAlgebra.normalize)
+for information on the possible `mode`s and how they work.
 """
-function find_stack_non_missing(stack::RasterStack)
+function LinearAlgebra.normalize!(arh::AbstractRasterHistogram; mode::Symbol = :pdf)
 
-    nm_raster_vec = [.!ismissing.(read(stack)[var]) for var ∈ keys(stack)]
-    intersection_non_missings = nm_raster_vec[1]
-    for nm_rs ∈ nm_raster_vec[2:end]
-        intersection_non_missings = intersection_non_missings .&& nm_rs .== 1
-    end
+    arh.histogram = LinearAlgebra.normalize(arh.histogram; mode)
 
-    return intersection_non_missings
+    return nothing
+
 end
 
 """
