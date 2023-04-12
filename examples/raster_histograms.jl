@@ -28,9 +28,11 @@ ax2 = Axis(fig[1, 2];
           xlabel = "Toy data", ylabel = "Counts")
 plot!(ax2, rs_hist; color = :steelblue)
 fig
-# By default the `Histogram` has the counts in each bin. We can update the `Histogram`
-# using the `normalize` function.
-rs_hist.histogram = normalize(rs_hist.histogram; mode = :pdf)
+# By default the `Histogram` has the counts in each bin. We can normalise the `Histogram`
+# by calling the `normalize!` function on `rs_hist` and choosing a `mode` of normailisation.
+# For more information possible modes of normalisation
+# [see here](https://juliastats.org/StatsBase.jl/latest/empirical/#LinearAlgebra.normalize).
+normalize!(rs_hist; mode = :pdf)
 # Then replot with the normalised histogram
 fig = Figure(size = (1000, 600))
 ax1 = Axis(fig[1, 1];

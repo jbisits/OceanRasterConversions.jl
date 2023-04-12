@@ -5,14 +5,14 @@
 ### OceanVariableConversions exported functions
 
 ```@autodocs
-Modules = [OceanRasterConversions]
+Modules = [OceanVariableConversions]
 Private = false
 ```
 
 ### OceanVariableConversions private functions
 
 ```@autodocs
-Modules = [OceanRasterConversions]
+Modules = [OceanVariableConversions]
 Public = false
 ```
 
