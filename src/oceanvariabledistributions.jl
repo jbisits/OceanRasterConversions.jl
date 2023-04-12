@@ -35,6 +35,8 @@ Construct a `RasterLayerHistogram` from a `Raster`. The flattened `Raster` data,
 `missing` values removed, is passed to the `fit(::Histogram)` function from
 [StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) and a
 `RasterLayerHistogram` type is returned.
+
+$(METHODS)
 """
 function RasterLayerHistogram(rs::Raster; nbins = nothing)
 
@@ -120,6 +122,8 @@ N-dimensional, where N is the number of layers. The flattened `Raster` data for 
 with the`missing` values removed, is passed to the `fit(::Histogram)` function from
 [StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) and a
 `RasterStackHistogram` type is returned.
+
+$(METHODS)
 """
 function RasterStackHistogram(stack::RasterStack; nbins = nothing)
 
@@ -208,6 +212,8 @@ Construct a `RasterSeriesHistogram` from a `RasterSeries`. Note that to `merge` 
 the bin edges must be the same, so for this constructor the edges must be passed in. This
 constructor assumes that the dimensions are the same across all `RasterStack`s in the
 `RasterSeries`.
+
+$(METHODS)
 """
 function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVector}) where {N}
 
@@ -280,6 +286,7 @@ function find_stack_non_missing(stack::RasterStack)
 
     return intersection_non_missings
 end
+
 function Base.show(io::IO, rlh::RasterLayerHistogram)
     println(io, "RasterLayerHistogram for the variable $(rlh.layer)")
     println(io, " ┣━━ Layer dimensions: $(rlh.dimensions) ")

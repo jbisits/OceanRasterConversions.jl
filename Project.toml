@@ -1,7 +1,7 @@
 name = "OceanRasterConversions"
 uuid = "07ff2621-03e0-4bfb-9812-e5d28c6dbff8"
 authors = ["Josef I. Bisits <jbisits@gmail.com>"]
-version = "0.2.2"
+version = "0.21.0"
 
 [deps]
 DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
