@@ -1,20 +1,40 @@
 using Documenter, Literate, OceanRasterConversions
-const EXAMPLES_DIR = normpath(joinpath(@__DIR__, "../examples"))
+using Random: seed!
+const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
-example_filepath = normpath(joinpath(EXAMPLES_DIR, "ECCO_example.jl"))
-Literate.markdown(example_filepath, OUTPUT_DIR)
-Literate.script(example_filepath, OUTPUT_DIR)
+to_be_literated = EXAMPLES_DIR .*"/".* readdir(EXAMPLES_DIR)
+
+for file ∈ to_be_literated
+    Literate.markdown(file, OUTPUT_DIR)
+    Literate.script(file, OUTPUT_DIR)
+end
+
+example_pages = [
+   "Converting ocean variables" => "literated/ocean_variable_conversion.md",
+   "Histograms from `Raster`s" => "literated/raster_histograms.md"
+]
+module_pages = [
+    "OceanVariableConversions" => "modules/OceanVariableConversions.md",
+    "RasterHistograms"         => "modules/RasterHistograms.md"
+]
+library_pages = [
+    "Function index" => "library/function_index.md"
+]
+pages = [
+    "Home" => "index.md",
+    "Modules" => module_pages,
+    "Examples" => example_pages,
+    "Library" => library_pages
+]
 
 makedocs(
         modules = [OceanRasterConversions],
         sitename = "OceanRasterConversions.jl",
-        doctest = false,
+        doctest = true,
         clean = true,
         authors = "Josef I. Bisits",
-        pages = Any["Home" => "index.md",
-                    "Examples" => Any["ECCO model output" => "literated/ECCO_example.md"]
-                    ]
+        pages = pages
         )
 
 deploydocs(
