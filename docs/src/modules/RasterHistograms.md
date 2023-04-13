@@ -1,7 +1,12 @@
 # [RasterHistograms](@id raster_hist_module)
 
+## Overview
+
 This module uses [empirical estimation from StatsBase.jl](https://juliastats.org/StatsBase.jl/stable/empirical/) to fit `Histogram`s to `Raster`, `RasterStack` or `RasterSeries` data structures.
-The functions take in the `Raster` data structure, as well as arguments for the `Histogram` (e.g. weights, edges).
+Arguments that can be passed to [`fit(::Histogram)`](https://juliastats.org/StatsBase.jl/stable/empirical/#StatsAPI.fit-Tuple{Type{Histogram},%20Vararg{Any}}) can be passed to the constructors for the the various `AbstractRasterHistogram`s.
+
+## Module workings
+
 For a single `Raster` (i.e. one variable)
 
 ```@meta
@@ -55,8 +60,11 @@ RasterStackHistogram for the variables (:v1, :v2, :v3)
 
 ```
 
+!!! info
+    The order of the variables for the `Histogram` is the order of the layers in the `RasterStack` or `RasterSeries`. This can be important for plotting when variables are desired to be on specific axes. In the example above `v1` would be on the x-axis, `v2` the y-axis and `v3` the z-axis. To change which axes the variables correspond to, the order of the layers in the `RasterStack` would need to be altered (or you could plot from the `histogram.weights` matrix).
+
 ```@meta
 DocTestSetup = nothing
 ```
 
-For a full list of the functions in this module see the [function index](@ref rh_func_index).
+For a full list of the functions in this module see the [function index](@ref rh_func_index) or look at the [example](@ref raster_hist_example) to see the module in action.
