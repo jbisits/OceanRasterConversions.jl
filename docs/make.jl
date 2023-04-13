@@ -23,7 +23,7 @@ library_pages = [
 pages = [
     "Home" => "index.md",
     "Modules" => module_pages,
-    #"Examples" => example_pages,
+    "Examples" => example_pages,
     "Library" => library_pages
 ]
 
