@@ -9,8 +9,8 @@
 This package contains modules that are useful for analysing oceanic data (either model output or gridded observations) and is designed to be used in conjunction with Rasters.jl.
 The modules are:
 
-- `OceanVariableConversions`, conversion and computation (using [TEOS-10](https://www.teos-10.org/pubs/gsw/html/gsw_front_page.html)) of ocean variables that are `Raster` data structures; and
-- `RasterHistograms`, empirical distribution fitting for `Raster` data structures.
+- [`OceanVariableConversions`](https://jbisits.github.io/OceanRasterConversions.jl/dev/modules/OceanVariableConversions/), conversion and computation (using [TEOS-10](https://www.teos-10.org/pubs/gsw/html/gsw_front_page.html)) of ocean variables that are `Raster` data structures; and
+- [`RasterHistograms`](https://jbisits.github.io/OceanRasterConversions.jl/dev/modules/RasterHistograms/), empirical distribution fitting for `Raster` data structures.
 
 ## Using the package
 

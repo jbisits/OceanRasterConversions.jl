@@ -63,8 +63,10 @@ plot!(profile_plots[2, 2], σ₀_profile;
       title = "σ₀-depth", xmirror = true, xlabel = "σ₀ (kgm⁻³)")
 
 # ## Plotting with [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl)
-# At this stage there are no recipes to plot a `Raster` in GeoMakie.jl (or any of the other
-# [Makie.jl](https://github.com/MakieOrg/Makie.jl) backends) though we can write a method
+# Rasters.jl also
+# [supports plotting with Makie.jl(https://rafaqz.github.io/Rasters.jl/dev/#Plotting-in-Makie)
+# as of version 0.5.3.
+# If using an older version we can write a method
 # for `convert_arguments` to convert a `Raster` into a format that can be plotted by
 # Makie.jl. For more information on implementing type recipes for plotting custom types in
 # Makie.jl see the

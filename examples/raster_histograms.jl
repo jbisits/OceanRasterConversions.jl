@@ -34,7 +34,7 @@ fig
 # [see here](https://juliastats.org/StatsBase.jl/latest/empirical/#LinearAlgebra.normalize).
 normalize!(rs_hist; mode = :pdf)
 # Then replot with the normalised histogram
-fig = Figure(size = (1000, 600))
+fig = Figure(size = (900, 600))
 ax1 = Axis(fig[1, 1];
            title = "Toy data",
            xlabel = "x",
@@ -60,7 +60,7 @@ edges = (31:0.025:38, -2:0.1:32)
 stack_hist = RasterStackHistogram(stack_TS, edges)
 # Now we can plot, the histogram and look at the unweighted distribtution of temperature and
 # salinity
-fig = Figure()
+fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (unweighted)",
           xlabel = "Practical salinity (°C)",
@@ -76,7 +76,7 @@ fig
 # should be used in favour of the functions.
 dV = volume_weights(stack_TS)
 weighted_stack_hist = RasterStackHistogram(stack_TS, dV, edges)
-fig = Figure()
+fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted)",
           xlabel = "Practical salinity (°C)",

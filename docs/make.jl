@@ -1,5 +1,4 @@
 using Documenter, Literate, OceanRasterConversions
-using Random: seed!
 const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
@@ -24,7 +23,7 @@ library_pages = [
 pages = [
     "Home" => "index.md",
     "Modules" => module_pages,
-    "Examples" => example_pages,
+    #"Examples" => example_pages,
     "Library" => library_pages
 ]
 
