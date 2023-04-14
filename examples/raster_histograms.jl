@@ -54,8 +54,7 @@ fig
 # be generalised to N dimensions depending on the number of variables
 # (i.e. layers in the `RasterStack`) one is looking at.
 # ### Forming the `RasterStack`
-stack = RasterStack("ECCO_data.nc") # this has already been downloaded
-stack_TS = RasterStack((Sₚ = stack[:SALT], θ = stack[:THETA]))
+stack_TS = RasterStack("ECCO_data.nc"; name = (:SALT, :THETA))
 edges = (31:0.025:38, -2:0.1:32)
 stack_hist = RasterStackHistogram(stack_TS, edges)
 # Now we can plot, the histogram and look at the unweighted distribtution of temperature and
@@ -67,6 +66,20 @@ ax = Axis(fig[1, 1];
           ylabel = "Potential temperature (psu)")
 hm = heatmap!(ax, stack_hist;
               colorrange = (1, maximum(stack_hist.histogram.weights)),
+              lowclip = :white)
+Colorbar(fig[1, 2], hm)
+fig
+# Currently there is no `log10` colourscale for a `heatmap` in Makie.jl (though it looks
+# like it will be [here soon](https://github.com/MakieOrg/Makie.jl/pull/2493)) so to view
+# the data on a `log10` scale we can extract the data from the `stack_hist.histogram`,
+# transform the weights and then plot
+fig = Figure(size = (500, 500))
+ax = Axis(fig[1, 1];
+          title = "Temperature and salinity joint distribution (unweighted)",
+          xlabel = "Practical salinity (°C)",
+          ylabel = "Potential temperature (psu)")
+hm = heatmap!(ax, stack_hist.histogram.edges..., log10.(stack_hist.histogram.weights);
+              colorrange = (0, 5),
               lowclip = :white)
 Colorbar(fig[1, 2], hm)
 fig
@@ -83,6 +96,18 @@ ax = Axis(fig[1, 1];
           ylabel = "Potential temperature (psu)")
 hm = heatmap!(ax, weighted_stack_hist;
               colorrange = (1, maximum(weighted_stack_hist.histogram.weights)),
+              lowclip = :white)
+Colorbar(fig[1, 2], hm)
+fig
+# Again to view on a `log10` scale we extract the data and transform
+fig = Figure(size = (500, 500))
+ax = Axis(fig[1, 1];
+          title = "Temperature and salinity joint distribution (weighted)",
+          xlabel = "Practical salinity (°C)",
+          ylabel = "Potential temperature (psu)")
+hm = heatmap!(ax, weighted_stack_hist.histogram.edges...,
+              log10.(weighted_stack_hist.histogram.weights);
+              colorrange = (0, 6),
               lowclip = :white)
 Colorbar(fig[1, 2], hm)
 fig
