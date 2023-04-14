@@ -54,7 +54,7 @@ fig
 # be generalised to N dimensions depending on the number of variables
 # (i.e. layers in the `RasterStack`) one is looking at.
 # ### Forming the `RasterStack`
-stack_TS = RasterStack("ECCO_data.nc"; name = (:SALT, :THETA)) # this has already been downloaded
+stack_TS = RasterStack("ECCO_data.nc"; name = (:SALT, :THETA))
 edges = (31:0.025:38, -2:0.1:32)
 stack_hist = RasterStackHistogram(stack_TS, edges)
 # Now we can plot, the histogram and look at the unweighted distribtution of temperature and
