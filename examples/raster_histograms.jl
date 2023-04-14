@@ -54,6 +54,11 @@ fig
 # be generalised to N dimensions depending on the number of variables
 # (i.e. layers in the `RasterStack`) one is looking at.
 # ### Forming the `RasterStack`
+# We form a `RasterStack` with only the `:SALT` (practical salinity) and `:THETA`
+# (potential temperature) layers. This means the resulting `RasterStackHistogram` will be 2
+# dimensional. Note the order of the variables matters here for plotting purposes. The first
+# layer, in this case `:SALT` will be the x-axis, and the second layer `:THETA` will be
+# the y-axis.
 stack_TS = RasterStack("ECCO_data.nc"; name = (:SALT, :THETA))
 edges = (31:0.025:38, -2:0.1:32)
 stack_hist = RasterStackHistogram(stack_TS, edges)
@@ -75,7 +80,7 @@ fig
 # transform the weights and then plot
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
-          title = "Temperature and salinity joint distribution (unweighted)",
+          title = "Temperature and salinity joint distribution (unweighted, log10 colourscale)",
           xlabel = "Practical salinity (°C)",
           ylabel = "Potential temperature (psu)")
 hm = heatmap!(ax, stack_hist.histogram.edges..., log10.(stack_hist.histogram.weights);
@@ -102,12 +107,12 @@ fig
 # Again to view on a `log10` scale we extract the data and transform
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
-          title = "Temperature and salinity joint distribution (weighted)",
+          title = "Temperature and salinity joint distribution (weighted by volume, log10 colourscale)",
           xlabel = "Practical salinity (°C)",
           ylabel = "Potential temperature (psu)")
 hm = heatmap!(ax, weighted_stack_hist.histogram.edges...,
               log10.(weighted_stack_hist.histogram.weights);
-              colorrange = (0, 6),
+              colorrange = (11, 16),
               lowclip = :white)
 Colorbar(fig[1, 2], hm)
 fig
