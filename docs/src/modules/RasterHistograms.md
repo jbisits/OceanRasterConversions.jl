@@ -67,4 +67,18 @@ RasterStackHistogram for the variables (:v1, :v2, :v3)
 DocTestSetup = nothing
 ```
 
+## Plotting
+
+Both [Makie.jl](https://docs.makie.org/stable/) and [Plots.jl](https://docs.juliaplots.org/stable/) have functions in the module to extract the `Histogram` object from the `AbstractRasterHistogram` for plotting.
+To plot in either package one can just call
+
+```julia
+julia> using #Plotting package e.g. CairoMakie.jl or PLots.jl 
+
+julia> plot(::AbstractRasterHistogram)
+```
+
+and an N-dimensional `Histogram` will be plotted where N is the dimension of the `::AbstractRasterHistogram`.
+Makie.jl is used in the exmaple.
+
 For a full list of the functions in this module see the [function index](@ref rh_func_index) or look at the [example](@ref raster_hist_example) to see the module in action.
