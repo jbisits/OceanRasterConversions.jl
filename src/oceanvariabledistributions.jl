@@ -1,7 +1,10 @@
 """
 Module to fit `Histogram`s to data that is saved as a `Raster`, `RasterStack` or
 `RasterSeries`. The fitted `Histogram` will be N-dimensional, where N is the number of
-layers (i.e. variables) to fit the `Histogram` to.
+layers (i.e. variables) to fit the `Histogram` to. The `Histogram` is fitted to the `Raster`
+data using the StatsBase.jl] empirical estimation module. For more information on how
+the `Histogram` is fitted to the data, and the arguments see the
+[StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) documentation.
 """
 module RasterHistograms
 
