@@ -10,7 +10,7 @@ This package contains modules that are useful for analysing oceanic data (either
 The modules are:
 
 - [`OceanVariableConversions`](https://jbisits.github.io/OceanRasterConversions.jl/dev/modules/OceanVariableConversions/), conversion and computation (using [TEOS-10](https://www.teos-10.org/pubs/gsw/html/gsw_front_page.html)) of ocean variables that are `Raster` data structures; and
-- [`RasterHistograms`](https://jbisits.github.io/OceanRasterConversions.jl/dev/modules/RasterHistograms/), empirical distribution fitting for `Raster` data structures.
+- [`RasterHistograms`](https://jbisits.github.io/OceanRasterConversions.jl/dev/modules/RasterHistograms/), empirical distribution fitting for `Raster` data structures with the aim to provide functionality similar to [xhistogram](https://xhistogram.readthedocs.io/en/latest/index.html) for [xarray](https://docs.xarray.dev/en/stable/).
 
 ## Using the package
 
