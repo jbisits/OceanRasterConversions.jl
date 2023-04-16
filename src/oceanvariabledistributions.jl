@@ -178,7 +178,7 @@ function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights;
 
 end
 function RasterStackHistogram(stack::RasterStack, edges::NTuple{N, AbstractVector};
-                              closed = left) where {N}
+                              closed = :left) where {N}
 
     layers = names(stack)
     dimensions = DimensionalData.dim2key(dims(stack))
