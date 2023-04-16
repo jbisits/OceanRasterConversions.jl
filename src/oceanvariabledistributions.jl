@@ -38,10 +38,12 @@ mutable struct RasterLayerHistogram <: AbstractRasterHistogram
         histogram   :: AbstractHistogram
 end
 """
-    function RasterLayerHistogram(rs::Raster; nbins = nothing)
-    function RasterLayerHistogram(rs::Raster, weights::AbstractWeights; nbins = nothing)
-    function RasterLayerHistogram(rs::Raster, edges::AbstractVector)
-    function RasterLayerHistogram(rs::Raster, weights::AbstractWeights, edges::AbstractVector)
+    function RasterLayerHistogram(rs::Raster; closed = :left, nbins = nothing)
+    function RasterLayerHistogram(rs::Raster, weights::AbstractWeights;
+                                  closed = :left, nbins = nothing)
+    function RasterLayerHistogram(rs::Raster, edges::AbstractVector; closed = :left)
+    function RasterLayerHistogram(rs::Raster, weights::AbstractWeights,
+                                  edges::AbstractVector; closed = :left)
 Construct a `RasterLayerHistogram` from a `Raster`. The flattened `Raster` data, with the
 `missing` values removed, is passed to the `fit(::Histogram)` function from
 [StatsBase.jl](https://juliastats.org/StatsBase.jl/latest/empirical/) and a
@@ -128,11 +130,13 @@ mutable struct RasterStackHistogram <: AbstractRasterHistogram
         histogram   :: Histogram
 end
 """
-    function RasterStackHistogram(stack::RasterStack; nbins = nothing)
-    function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights; nbins = nothing)
-    function RasterStackHistogram(stack::RasterStack, edges::NTuple{N, AbstractVector})
+    function RasterStackHistogram(stack::RasterStack; closed = :left, nbins = nothing)
+    function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights;
+                                  closed = :left, nbins = nothing)
+    function RasterStackHistogram(stack::RasterStack, edges::NTuple{N, AbstractVector};
+                                  closed = :left)
     function RasterStackHistogram(stack::RasterStack, weights::AbstractWeights,
-                                  edges::NTuple{N, AbstractVector}
+                                  edges::NTuple{N, AbstractVector}; closed = :left)
 Construct a `RasterStackHistogram` from a `RasterStack`. The resulting `Histogram` is
 N-dimensional, where N is the number of layers. The flattened `Raster` data for each layer,
 with the`missing` values removed, is passed to the `fit(::Histogram)` function from
@@ -225,9 +229,10 @@ mutable struct RasterSeriesHistogram <: AbstractRasterHistogram
         histogram        :: Histogram
 end
 """
-    function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVector})
-    function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
-                                    edges::NTuple{N, AbstractVector})
+    function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVector};
+                                   closed = :left)
+    function RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
+                                   edges::NTuple{N, AbstractVector}; closed = :left)
 Construct a `RasterSeriesHistogram` from a `RasterSeries`. Note that to `merge` `Histograms`
 the bin edges must be the same, so for this constructor the edges must be passed in. This
 constructor assumes that the dimensions are the same across all `RasterStack`s in the
@@ -260,8 +265,8 @@ function RasterSeriesHistogram(series::RasterSeries, edges::NTuple{N, AbstractVe
                                  dimensions, rs_size, histogram)
 
 end
-function  RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
-                                edges::NTuple{N, AbstractVector}; closed = :left) where {N}
+function RasterSeriesHistogram(series::RasterSeries, weights::AbstractWeights,
+                               edges::NTuple{N, AbstractVector}; closed = :left) where {N}
 
     series_dimension = DimensionalData.dim2key(dims(series))[1]
     series_length = length(series)
