@@ -10,7 +10,7 @@ using OceanRasterConversions.RasterHistograms
 # [xhistogram tutorial](https://xhistogram.readthedocs.io/en/latest/tutorial.html).
 # ## Randomly generated toy data
 # First we generate some randomly distributed data and form a `Raster`.
-x, t = range(-2π, 2π; length = 50), range(-2π, 2π; length = 100)
+x, t = range(-2π, 2π; length = 50), range(0, 4π; length = 100)
 dimensions = (X(x), Ti(t))
 rs = Raster(randn(length(x), length(t)), dimensions; name = :Toy_data)
 # The we can form a `RasterLayerHistogram` for the `:Toy_data`
@@ -46,6 +46,9 @@ ax2 = Axis(fig[1, 2];
           xlabel = "Toy data", ylabel = "density")
 plot!(ax2, rs_hist; color = :steelblue)
 fig
+# !!! info
+#     Plotting using [Plots.jl](https://docs.juliaplots.org/latest/) is also possible.
+#     See the [module documentation](@ref raster_hist_module) for more info.
 # ## Real world data example
 # This package is mainly concerned with ocean variables, so we now look at temperature and
 # salinity distributions from the same ECCO temperature and salinity data we look at in
@@ -63,15 +66,15 @@ stack_TS = RasterStack("ECCO_data.nc"; name = (:SALT, :THETA))
 edges = (31:0.025:38, -2:0.1:32)
 stack_hist = RasterStackHistogram(stack_TS, edges)
 # Now we can plot, the histogram and look at the unweighted distribtution of temperature and
-# salinity
+# salinity. By default the empty bins are plotted with the value of zero. To not plot
+# the empty bins argument we pass `show_empty_bins = false` to the plotting function.
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (unweighted)",
-          xlabel = "Practical salinity (°C)",
-          ylabel = "Potential temperature (psu)")
-hm = heatmap!(ax, stack_hist;
-              colorrange = (1, maximum(stack_hist.histogram.weights)),
-              lowclip = :white)
+          xlabel = "Practical salinity (psu)",
+          ylabel = "Potential temperature (°C)")
+show_empty_bins = false
+hm = heatmap!(ax, stack_hist, show_empty_bins)
 Colorbar(fig[1, 2], hm)
 fig
 # Currently there is no `log10` colourscale for a `heatmap` in Makie.jl (though it looks
@@ -81,8 +84,8 @@ fig
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (unweighted, log10 colourscale)",
-          xlabel = "Practical salinity (°C)",
-          ylabel = "Potential temperature (psu)")
+          xlabel = "Practical salinity (psu)",
+          ylabel = "Potential temperature (°C)")
 hm = heatmap!(ax, stack_hist.histogram.edges..., log10.(stack_hist.histogram.weights);
               colorrange = (0, 5),
               lowclip = :white)
@@ -97,19 +100,17 @@ weighted_stack_hist = RasterStackHistogram(stack_TS, dV, edges)
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted)",
-          xlabel = "Practical salinity (°C)",
-          ylabel = "Potential temperature (psu)")
-hm = heatmap!(ax, weighted_stack_hist;
-              colorrange = (1, maximum(weighted_stack_hist.histogram.weights)),
-              lowclip = :white)
+          xlabel = "Practical salinity (psu)",
+          ylabel = "Potential temperature (°C)")
+hm = heatmap!(ax, weighted_stack_hist, show_empty_bins)
 Colorbar(fig[1, 2], hm)
 fig
 # Again to view on a `log10` scale we extract the data and transform
 fig = Figure(size = (500, 500))
 ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted by volume, log10 colourscale)",
-          xlabel = "Practical salinity (°C)",
-          ylabel = "Potential temperature (psu)")
+          xlabel = "Practical salinity (psu)",
+          ylabel = "Potential temperature (°C)")
 hm = heatmap!(ax, weighted_stack_hist.histogram.edges...,
               log10.(weighted_stack_hist.histogram.weights);
               colorrange = (11, 16),

@@ -4,6 +4,7 @@
 
 This module uses [empirical estimation from StatsBase.jl](https://juliastats.org/StatsBase.jl/stable/empirical/) to fit `Histogram`s to `Raster`, `RasterStack` or `RasterSeries` data structures.
 Arguments that can be passed to [`fit(::Histogram)`](https://juliastats.org/StatsBase.jl/stable/empirical/#StatsAPI.fit-Tuple{Type{Histogram},%20Vararg{Any}}) can be passed to the constructors for the the various `AbstractRasterHistogram`s.
+The aim of the module is to provide functionality similar to [xhistogram](https://xhistogram.readthedocs.io/en/latest/index.html) for [xarray](https://docs.xarray.dev/en/stable/).
 
 ## Module workings
 
@@ -66,5 +67,19 @@ RasterStackHistogram for the variables (:v1, :v2, :v3)
 ```@meta
 DocTestSetup = nothing
 ```
+
+## Plotting
+
+Both [Makie.jl](https://docs.makie.org/stable/) and [Plots.jl](https://docs.juliaplots.org/stable/) have functions in the module to extract the `Histogram` object from the `AbstractRasterHistogram` for plotting.
+To plot in either package one can just call
+
+```julia
+julia> using #Plotting package e.g. CairoMakie.jl or PLots.jl 
+
+julia> plot(::AbstractRasterHistogram)
+```
+
+and an N-dimensional `Histogram` will be plotted where N is the dimension of the `::AbstractRasterHistogram`.
+Makie.jl is used in the exmaple.
 
 For a full list of the functions in this module see the [function index](@ref rh_func_index) or look at the [example](@ref raster_hist_example) to see the module in action.
