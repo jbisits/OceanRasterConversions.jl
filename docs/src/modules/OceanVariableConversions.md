@@ -14,6 +14,10 @@ In doing so a pressure variable is needed, so this is created and returned in th
 A density variable (either in-situ or potential referenced to a user input) is computed and added to the `RasterStack`.
 See the example for how the module can be used.
 
+!!! info
+    The only dimension names that are supported are `X`, `Y`, `Z`, and `Ti`.
+    Allowing for user specified dimensions has not yet been implemented.
+
 ### Variables
 
 The variables are named using the symbols that represent them.
