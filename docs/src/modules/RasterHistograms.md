@@ -4,7 +4,7 @@
 
 This module uses [empirical estimation from StatsBase.jl](https://juliastats.org/StatsBase.jl/stable/empirical/) to fit `Histogram`s to `Raster`, `RasterStack` or `RasterSeries` data structures.
 Arguments that can be passed to [`fit(::Histogram)`](https://juliastats.org/StatsBase.jl/stable/empirical/#StatsAPI.fit-Tuple{Type{Histogram},%20Vararg{Any}}) can be passed to the constructors for the the various `AbstractRasterHistogram`s.
-The aim of the module is to provide functionality similar to [xhistogram](https://xhistogram.readthedocs.io/en/latest/index.html) for [xarray](https://docs.xarray.dev/en/stable/).
+The aim of the module is to provide functionality similar to python's [xhistogram](https://xhistogram.readthedocs.io/en/latest/index.html) for [xarray](https://docs.xarray.dev/en/stable/) in Julia.
 
 ## Module workings
 
