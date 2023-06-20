@@ -64,7 +64,7 @@ plot!(profile_plots[2, 2], σ₀_profile;
 
 # ## Plotting with [GeoMakie.jl](https://github.com/MakieOrg/GeoMakie.jl)
 # Rasters.jl also
-# [supports plotting with Makie.jl(https://rafaqz.github.io/Rasters.jl/dev/#Plotting-in-Makie)
+# [supports plotting with Makie.jl](https://rafaqz.github.io/Rasters.jl/dev/#Plotting-in-Makie)
 # as of version 0.5.3.
 # If using an older version we can write a method
 # for `convert_arguments` to convert a `Raster` into a format that can be plotted by
