@@ -1,6 +1,6 @@
 # # [Raster Histograms](@id raster_hist_example)
 # First, add the required depedencies
-using Rasters, Downloads, CairoMakie
+using Rasters, NCDatasets, Downloads, CairoMakie
 # and the `RasterHistograms` module from OceanRasterConversions.jl package
 using OceanRasterConversions.RasterHistograms
 # Using this module we can produce `Histogram`s from data that is in a `Raster`,
