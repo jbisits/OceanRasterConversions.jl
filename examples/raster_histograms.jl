@@ -74,7 +74,7 @@ ax = Axis(fig[1, 1];
           xlabel = "Practical salinity (psu)",
           ylabel = "Potential temperature (°C)")
 show_empty_bins = false
-hm = heatmap!(ax, stack_hist, show_empty_bins)
+hm = heatmap!(ax, stack_hist, show_empty_bins; colorscale = log10)
 Colorbar(fig[1, 2], hm)
 fig
 # Currently there is no `log10` colourscale for a `heatmap` in Makie.jl (though it looks
@@ -102,7 +102,7 @@ ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted)",
           xlabel = "Practical salinity (psu)",
           ylabel = "Potential temperature (°C)")
-hm = heatmap!(ax, weighted_stack_hist, show_empty_bins)
+hm = heatmap!(ax, weighted_stack_hist, show_empty_bins; colorscale = log10)
 Colorbar(fig[1, 2], hm)
 fig
 # Again to view on a `log10` scale we extract the data and transform
