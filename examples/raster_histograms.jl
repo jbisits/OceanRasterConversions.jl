@@ -74,21 +74,7 @@ ax = Axis(fig[1, 1];
           xlabel = "Practical salinity (psu)",
           ylabel = "Potential temperature (°C)")
 show_empty_bins = false
-hm = heatmap!(ax, stack_hist, show_empty_bins)
-Colorbar(fig[1, 2], hm)
-fig
-# Currently there is no `log10` colourscale for a `heatmap` in Makie.jl (though it looks
-# like it will be [here soon](https://github.com/MakieOrg/Makie.jl/pull/2493)) so to view
-# the data on a `log10` scale we can extract the data from the `stack_hist.histogram`,
-# transform the weights and then plot
-fig = Figure(size = (500, 500))
-ax = Axis(fig[1, 1];
-          title = "Temperature and salinity joint distribution (unweighted, log10 colourscale)",
-          xlabel = "Practical salinity (psu)",
-          ylabel = "Potential temperature (°C)")
-hm = heatmap!(ax, stack_hist.histogram.edges..., log10.(stack_hist.histogram.weights);
-              colorrange = (0, 5),
-              lowclip = :white)
+hm = heatmap!(ax, stack_hist, show_empty_bins; colorscale = log10)
 Colorbar(fig[1, 2], hm)
 fig
 # ### Weighting the `Histogram`
@@ -102,18 +88,6 @@ ax = Axis(fig[1, 1];
           title = "Temperature and salinity joint distribution (weighted)",
           xlabel = "Practical salinity (psu)",
           ylabel = "Potential temperature (°C)")
-hm = heatmap!(ax, weighted_stack_hist, show_empty_bins)
-Colorbar(fig[1, 2], hm)
-fig
-# Again to view on a `log10` scale we extract the data and transform
-fig = Figure(size = (500, 500))
-ax = Axis(fig[1, 1];
-          title = "Temperature and salinity joint distribution (weighted by volume, log10 colourscale)",
-          xlabel = "Practical salinity (psu)",
-          ylabel = "Potential temperature (°C)")
-hm = heatmap!(ax, weighted_stack_hist.histogram.edges...,
-              log10.(weighted_stack_hist.histogram.weights);
-              colorrange = (11, 16),
-              lowclip = :white)
+hm = heatmap!(ax, weighted_stack_hist, show_empty_bins; colorscale = log10)
 Colorbar(fig[1, 2], hm)
 fig
