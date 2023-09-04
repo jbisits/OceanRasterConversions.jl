@@ -11,11 +11,9 @@ end
 
 example_pages = [
    "Converting ocean variables" => "literated/ocean_variable_conversion.md",
-   "Histograms from `Raster`s" => "literated/raster_histograms.md"
 ]
 module_pages = [
     "OceanVariableConversions" => "modules/OceanVariableConversions.md",
-    "RasterHistograms"         => "modules/RasterHistograms.md"
 ]
 library_pages = [
     "Function index" => "library/function_index.md"
