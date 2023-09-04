@@ -1,7 +1,7 @@
 # # [Converting the practical salinity and potential temperature from ECCOv4r4 model output.](@id converting_variables_example)
 # First, add the required dependencies
 using Rasters, NCDatasets, Plots, Downloads
-using OceanRasterConversions.OceanVariableConversions
+using OceanRasterConversions
 # and download model output from [ECCOv4r4](https://ecco-group.org/products-ECCO-V4r4.htm).
 # This data is the daily average 0.5 degree salinity and temperature model output. To reproduce
 # this example, an Earthdata acount is needed to download the data.

@@ -6,6 +6,14 @@ variables can then be computed from these state variables.
 """
 module OceanVariableConversions
 
+using Rasters, GibbsSeaWater, DocStringExtensions
+
+export
+    convert_ocean_vars,
+    depth_to_pressure, Sₚ_to_Sₐ, θ_to_Θ,
+    get_ρ, get_σₚ, get_α, get_β
+
+
 include("oceanvariableconversions.jl")
 
 end #module
