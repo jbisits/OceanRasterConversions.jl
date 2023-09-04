@@ -1,33 +1,15 @@
-# Function index
+# [Function index](@id ovc_func_index)
 
-## [OceanVariableConversions](@id ovc_func_index)
-
-### OceanVariableConversions exported functions
+## OceanRasterConversions exported functions
 
 ```@autodocs
-Modules = [OceanVariableConversions]
+Modules = [OceanRasterConversions]
 Private = false
 ```
 
-### OceanVariableConversions private functions
+## OceanRasterConversions private functions
 
 ```@autodocs
-Modules = [OceanVariableConversions]
-Public = false
-```
-
-## [RasterHistograms](@id rh_func_index)
-
-### RasterHistograms exported functions
-
-```@autodocs
-Modules = [RasterHistograms]
-Private = false
-```
-
-### RasterHistograms private functions
-
-```@autodocs
-Modules = [RasterHistograms]
+Modules = [OceanRasterConversions]
 Public = false
 ```
