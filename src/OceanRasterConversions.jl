@@ -15,5 +15,10 @@ export
 
 
 include("oceanvariableconversions.jl")
+include("z_to_p.jl")
+include("sp_to_sa.jl")
+include("theta_to_Theta.jl")
+include("seawaterdensity.jl")
+include("alphaandbeta.jl")
 
 end #module
