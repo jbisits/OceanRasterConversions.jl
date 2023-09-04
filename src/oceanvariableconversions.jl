@@ -340,5 +340,3 @@ function get_dims(raster::Raster)
     return rs_dims
 
 end
-
-end #module
