@@ -4,7 +4,7 @@ TEOS-10 standard variables pressure, absolute salinity and conservative temperat
 (respectively) from a `Raster`, `RasterStack`  or `RasterSeries`. A few chosen seawater
 variables can then be computed from these state variables.
 """
-module OceanVariableConversions
+module OceanRasterConversions
 
 using Rasters, GibbsSeaWater, DocStringExtensions
 
