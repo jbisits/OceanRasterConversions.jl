@@ -2,12 +2,27 @@
 # First, add the required dependencies
 using Rasters, NCDatasets, Plots, Downloads
 using OceanRasterConversions
-# and download model output from [ECCOv4r4](https://ecco-group.org/products-ECCO-V4r4.htm).
+# and download model output from [ECCOv4r4](https://ecco-group.org/products-ECCO-V4r4.htm)
+# [Fukumori2022](@cite), [Fukumori2021](@cite), [Forget2015](@cite).
 # This data is the daily average 0.5 degree salinity and temperature model output. To reproduce
 # this example, an Earthdata acount is needed to download the data.
+# !!! info
+#     See the [NCDatasets.jl example](https://alexander-barth.github.io/NCDatasets.jl/latest/tutorials/#Data-from-NASA-EarthData)
+#     for information on how to download data from NASA EarthData.
 # ## Read the data into a `RasterStack`
-Downloads.download("https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/ECCO%2520Ocean%2520Temperature%2520and%2520Salinity%2520-%2520Daily%2520Mean%25200.5%2520Degree%2520(Version%25204%2520Release%25204)/granules/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.dap.nc4", "ECCO_data.nc")
+function download_ECCO()
 
+    try
+        Downloads.download("https://opendap.earthdata.nasa.gov/providers/POCLOUD/collections/ECCO%2520Ocean%2520Temperature%2520and%2520Salinity%2520-%2520Daily%2520Mean%25200.5%2520Degree%2520(Version%25204%2520Release%25204)/granules/OCEAN_TEMPERATURE_SALINITY_day_mean_2007-01-01_ECCO_V4r4_latlon_0p50deg.dap.nc4", "ECCO_data.nc")
+    catch
+        @info "dowloading from drive"
+        Downloads.download("https://drive.google.com/uc?id=1MNeThunqpY-nFzsZLZj9BV8sM5BJgnxT&export=download", "ECCO_data.nc")
+    end
+
+    return nothing
+
+end
+download_ECCO()
 stack = RasterStack("ECCO_data.nc")
 # Thanks to [Rasters.jl](https://github.com/rafaqz/Rasters.jl) we now have the dimensions of
 # the data, the variables saved as layers and all the metadata in one data structure.
@@ -107,3 +122,5 @@ cp = CairoMakie.contourf!(ax, converted_stack[:Θ][Z(Near(depth)), Ti(At(date))]
                           colormap = :balance)
 Colorbar(fig[2, 1], cp; label = "Θ (ᵒC)", vertical = false, flipaxis = false)
 fig
+# ```@bibliography
+# ```
