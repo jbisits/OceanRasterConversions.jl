@@ -1,4 +1,4 @@
-using Documenter, Literate, OceanRasterConversions
+using Documenter, Literate, OceanRasterConversions, DocumenterCitations
 const EXAMPLES_DIR = joinpath(@__DIR__, "../examples")
 const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
 
@@ -25,12 +25,20 @@ pages = [
     "Library" => library_pages
 ]
 
-makedocs(
+bib = CitationBibliography(joinpath(@__DIR__, "src/refs.bib"))
+
+makedocs(bib,
         modules = [OceanRasterConversions],
         sitename = "OceanRasterConversions.jl",
+        repo="https://github.com/jbisits/OceanRasterConversions.jl/blob/{commit}{path}#{line}",
         doctest = true,
-        clean = true,
-        authors = "Josef I. Bisits",
+        authors="Josef Bisits <jbisits@gmail.com>",
+        format=Documenter.HTML(;
+            prettyurls=get(ENV, "CI", "false") == "true",
+            canonical="https://jbisits.github.io/OceanRasterConversions.jl",
+            edit_link="main",
+            assets=String[],
+        ),
         pages = pages
         )
 
